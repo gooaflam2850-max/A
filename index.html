@@ -15,16 +15,6 @@
             --input-bg: #f0f2f5;
         }
 
-        .dark-mode {
-            --bg-color: #18191a;
-            --card-bg: #242526;
-            --text-color: #e4e6eb;
-            --sub-text: #b0b3b8;
-            --border-color: #393a3b;
-            --header-bg: #242526;
-            --input-bg: #3a3b3c;
-        }
-
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; transition: background 0.3s, color 0.3s; }
         body { background-color: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; }
 
@@ -32,7 +22,7 @@
             width: 100%;
             max-width: 480px;
             height: 100vh;
-            display: none;
+            display: flex;
             flex-direction: column;
             background: var(--bg-color);
             border: 1px solid var(--border-color);
@@ -51,16 +41,6 @@
         }
 
         .header-actions { display: flex; align-items: center; gap: 8px; }
-        
-        .icon-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-        }
 
         .nav-tabs {
             display: flex;
@@ -206,7 +186,6 @@
 
         .user-details { display: flex; flex-direction: column; }
         .user-info { font-size: 14px; font-weight: bold; }
-        .post-time { font-size: 11px; color: var(--sub-text); }
         .post-content { font-size: 14px; line-height: 1.4; word-break: break-word; }
         
         .post-media {
@@ -254,38 +233,12 @@
             background-color: var(--input-bg);
             color: var(--text-color);
         }
-
-        .login-screen {
-            width: 100%;
-            max-width: 480px;
-            height: 100vh;
-            background: var(--card-bg);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            gap: 20px;
-        }
-
-        .google-btn {
-            background-color: #4285F4;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            font-size: 14px;
-        }
     </style>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-        import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD3dC6ucOkNeo65pHx4JzPDwQ_jgciBu6Q",
@@ -300,51 +253,23 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const storage = getStorage(app);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
 
-        let currentUser = null;
-        let allPosts = [];
+        // إنشاء زائر تلقائي بدون تسجيل دخول
+        const randomId = Math.floor(1000 + Math.random() * 9000);
+        const currentUser = {
+            displayName: "مستخدم_" + randomId,
+            photoURL: "https://api.dicebear.com/7.x/bottts/svg?seed=" + randomId
+        };
 
-        // استقبال نتيجة التوجيه من جوجل بعد العودة للموقع
-        getRedirectResult(auth)
-            .then((result) => {
-                if (result) {
-                    console.log("Logged in successfully:", result.user);
-                }
-            })
-            .catch((error) => {
-                console.error("Redirect Error:", error);
-                alert("خطأ في الدخول: " + error.message);
-            });
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById('displayUserName').innerText = currentUser.displayName;
+            document.getElementById('profileDisplayName').innerText = currentUser.displayName;
+            document.getElementById('profileAvatarImg').src = currentUser.photoURL;
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('appContainer').style.display = 'flex';
-                document.getElementById('displayUserName').innerText = user.displayName;
-                
-                document.getElementById('profileDisplayName').innerText = user.displayName;
-                document.getElementById('profileAvatarImg').src = user.photoURL;
-
-                listenToPosts();
-                listenToMessages();
-                listenToStories();
-            } else {
-                currentUser = null;
-                document.getElementById('loginScreen').style.display = 'flex';
-                document.getElementById('appContainer').style.display = 'none';
-            }
+            listenToPosts();
+            listenToMessages();
+            listenToStories();
         });
-
-        window.loginWithGoogle = function() {
-            signInWithRedirect(auth, provider);
-        };
-
-        window.logoutApp = function() {
-            signOut(auth);
-        };
 
         window.createPostWithFile = async function() {
             const textInput = document.getElementById('postText');
@@ -393,7 +318,7 @@
                 const container = document.getElementById('postsContainer');
                 container.innerHTML = '';
                 if (data) {
-                    allPosts = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+                    const allPosts = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
                     allPosts.forEach(post => {
                         const div = document.createElement('div');
                         div.className = 'post';
@@ -475,17 +400,11 @@
 </head>
 <body>
 
-<div class="login-screen" id="loginScreen">
-    <h1 style="color: #1877f2;">facebook</h1>
-    <button class="google-btn" onclick="loginWithGoogle()">تسجيل الدخول مع Google 🚀</button>
-</div>
-
 <div class="app-container" id="appContainer">
     <header>
         <span>تواصل معنا</span>
         <div class="header-actions">
             <span id="displayUserName" style="font-size: 12px;"></span>
-            <button class="icon-btn" onclick="logoutApp()">خروج</button>
         </div>
     </header>
 
