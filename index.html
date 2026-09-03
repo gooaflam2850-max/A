@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق التواصل الاجتماعي الاحترافي</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #050505;
+            --sub-text: #65676b;
+            --border-color: #ddd;
+            --header-bg: #1877f2;
+            --input-bg: #f0f2f5;
+        }
+
+        .dark-mode {
+            --bg-color: #18191a;
+            --card-bg: #242526;
+            --text-color: #e4e6eb;
+            --sub-text: #b0b3b8;
+            --border-color: #393a3b;
+            --header-bg: #242526;
+            --input-bg: #3a3b3c;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; transition: background 0.3s, color 0.3s; }
+        body { background-color: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            display: none;
+            flex-direction: column;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+        }
+
+        header {
+            background-color: var(--header-bg);
+            color: white;
+            padding: 12px 15px;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .header-actions { display: flex; align-items: center; gap: 8px; }
+        
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            color: var(--sub-text);
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-tab.active {
+            color: #1877f2;
+            border-bottom-color: #1877f2;
+        }
+
+        .stories-container {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .story-card {
+            min-width: 80px;
+            height: 110px;
+            border-radius: 10px;
+            background: #1877f2;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .story-add {
+            background: var(--input-bg);
+            color: var(--text-color);
+            border: 1px dashed var(--border-color);
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .feed, .profile-screen, .chat-screen {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .profile-card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .create-post {
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        textarea, .media-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--input-bg);
+            color: var(--text-color);
+            outline: none;
+            font-size: 12px;
+        }
+
+        textarea { height: 60px; resize: none; font-size: 14px; }
+
+        .post-btn {
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .post {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .post-header { display: flex; justify-content: space-between; align-items: center; }
+        .author-info { display: flex; align-items: center; gap: 10px; }
+        
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: #1877f2;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .user-details { display: flex; flex-direction: column; }
+        .user-info { font-size: 14px; font-weight: bold; }
+        .post-time { font-size: 11px; color: var(--sub-text); }
+        .post-content { font-size: 14px; line-height: 1.4; word-break: break-word; }
+        
+        .post-media {
+            width: 100%;
+            max-height: 280px;
+            object-fit: cover;
+            border-radius: 6px;
+            background: #000;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .message-bubble {
+            max-width: 75%;
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            word-break: break-word;
+        }
+
+        .msg-my {
+            align-self: flex-start;
+            background-color: #1877f2;
+            color: white;
+        }
+
+        .msg-other {
+            align-self: flex-end;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+        }
+
+        .login-screen {
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            background: var(--card-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .google-btn {
+            background-color: #4285F4;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 14px;
+        }
+    </style>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+        import { getAuth, signInWithRedirect, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD3dC6ucOkNeo65pHx4JzPDwQ_jgciBu6Q",
+            authDomain: "facebook-b5664.firebaseapp.com",
+            databaseURL: "https://facebook-b5664-default-rtdb.firebaseio.com",
+            projectId: "facebook-b5664",
+            storageBucket: "facebook-b5664.firebasestorage.app",
+            messagingSenderId: "314653723710",
+            appId: "1:314653723710:web:c788497dfa805de6e3556f"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const storage = getStorage(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        let currentUser = null;
+        let allPosts = [];
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'flex';
+                document.getElementById('displayUserName').innerText = user.displayName;
+                
+                document.getElementById('profileDisplayName').innerText = user.displayName;
+                document.getElementById('profileAvatarImg').src = user.photoURL;
+
+                listenToPosts();
+                listenToMessages();
+                listenToStories();
+            } else {
+                currentUser = null;
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('appContainer').style.display = 'none';
+            }
+        });
+
+        window.loginWithGoogle = function() {
+            signInWithRedirect(auth, provider).catch(err => alert(err.message));
+        };
+
+        window.logoutApp = function() {
+            signOut(auth);
+        };
+
+        window.createPostWithFile = async function() {
+            const textInput = document.getElementById('postText');
+            const fileInput = document.getElementById('postMediaFile');
+            const btn = document.getElementById('uploadBtn');
+            
+            const content = textInput.value.trim();
+            const file = fileInput.files[0];
+
+            if (!content && !file) return;
+
+            btn.disabled = true;
+            btn.innerText = "جاري الرفع والنشر...";
+
+            let imageUrl = "";
+            let videoUrl = "";
+
+            if (file) {
+                const fRef = storageRef(storage, 'uploads/' + Date.now() + '_' + file.name);
+                await uploadBytes(fRef, file);
+                const url = await getDownloadURL(fRef);
+
+                if (file.type.startsWith('image/')) imageUrl = url;
+                else if (file.type.startsWith('video/')) videoUrl = url;
+            }
+
+            const postsRef = ref(db, 'posts');
+            push(postsRef, {
+                author: currentUser.displayName,
+                authorAvatar: currentUser.photoURL,
+                content: content,
+                imageUrl: imageUrl,
+                videoUrl: videoUrl,
+                timestamp: Date.now()
+            });
+
+            textInput.value = '';
+            fileInput.value = '';
+            btn.disabled = false;
+            btn.innerText = "نشر للجميع";
+        };
+
+        function listenToPosts() {
+            onValue(ref(db, 'posts'), (snapshot) => {
+                const data = snapshot.val();
+                const container = document.getElementById('postsContainer');
+                container.innerHTML = '';
+                if (data) {
+                    allPosts = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+                    allPosts.forEach(post => {
+                        const div = document.createElement('div');
+                        div.className = 'post';
+                        div.innerHTML = `
+                            <div class="post-header">
+                                <div class="author-info">
+                                    <img src="${post.authorAvatar}" class="avatar">
+                                    <div class="user-details">
+                                        <div class="user-info">${post.author}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            ${post.content ? `<div class="post-content">${post.content}</div>` : ''}
+                            ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-media">` : ''}
+                            ${post.videoUrl ? `<video controls src="${post.videoUrl}" class="post-media"></video>` : ''}
+                        `;
+                        container.appendChild(div);
+                    });
+                }
+            });
+        }
+
+        window.sendMessage = function() {
+            const input = document.getElementById('chatInput');
+            if (!input.value.trim()) return;
+
+            push(ref(db, 'chats'), {
+                sender: currentUser.displayName,
+                text: input.value.trim(),
+                timestamp: Date.now()
+            });
+            input.value = '';
+        };
+
+        function listenToMessages() {
+            onValue(ref(db, 'chats'), (snapshot) => {
+                const container = document.getElementById('chatMessages');
+                container.innerHTML = '';
+                const data = snapshot.val();
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        const msg = data[key];
+                        const isMy = msg.sender === currentUser.displayName;
+                        const div = document.createElement('div');
+                        div.className = `message-bubble ${isMy ? 'msg-my' : 'msg-other'}`;
+                        div.innerHTML = `<strong>${msg.sender}</strong><br>${msg.text}`;
+                        container.appendChild(div);
+                    });
+                    container.scrollTop = container.scrollHeight;
+                }
+            });
+        }
+
+        function listenToStories() {
+            onValue(ref(db, 'stories'), (snapshot) => {
+                const container = document.getElementById('storiesContainer');
+                container.innerHTML = `<div class="story-card story-add" onclick="alert('انقر لإضافة قصة')">+<br>قصة</div>`;
+            });
+        }
+
+        window.switchTab = function(tab) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('feedView').style.display = 'none';
+            document.getElementById('profileView').style.display = 'none';
+            document.getElementById('chatView').style.display = 'none';
+
+            if (tab === 'feed') {
+                document.getElementById('feedTabBtn').classList.add('active');
+                document.getElementById('feedView').style.display = 'flex';
+            } else if (tab === 'profile') {
+                document.getElementById('profileTabBtn').classList.add('active');
+                document.getElementById('profileView').style.display = 'flex';
+            } else if (tab === 'chat') {
+                document.getElementById('chatTabBtn').classList.add('active');
+                document.getElementById('chatView').style.display = 'flex';
+            }
+        };
+    </script>
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen">
+    <h1 style="color: #1877f2;">facebook</h1>
+    <button class="google-btn" onclick="loginWithGoogle()">تسجيل الدخول مع Google 🚀</button>
+</div>
+
+<div class="app-container" id="appContainer">
+    <header>
+        <span>تواصل معنا</span>
+        <div class="header-actions">
+            <span id="displayUserName" style="font-size: 12px;"></span>
+            <button class="icon-btn" onclick="logoutApp()">خروج</button>
+        </div>
+    </header>
+
+    <div class="nav-tabs">
+        <div class="nav-tab active" id="feedTabBtn" onclick="switchTab('feed')">الرئيسية 🏠</div>
+        <div class="nav-tab" id="chatTabBtn" onclick="switchTab('chat')">الرسائل 💬</div>
+        <div class="nav-tab" id="profileTabBtn" onclick="switchTab('profile')">الملف الشخصي 👤</div>
+    </div>
+
+    <div class="feed" id="feedView">
+        <div class="stories-container" id="storiesContainer"></div>
+
+        <div class="create-post">
+            <textarea id="postText" placeholder="بم تفكر اليوم؟"></textarea>
+            <label style="font-size: 11px; color: var(--sub-text);">اختر صورة أو فيديو من الجهاز:</label>
+            <input type="file" id="postMediaFile" accept="image/*,video/*" class="media-input">
+            <button class="post-btn" id="uploadBtn" onclick="createPostWithFile()">نشر للجميع</button>
+        </div>
+
+        <div id="postsContainer"></div>
+    </div>
+
+    <div class="chat-screen" id="chatView" style="display: none;">
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input-area" style="display: flex; gap: 5px; padding: 10px;">
+                <input type="text" id="chatInput" class="media-input" placeholder="اكتب رسالتك...">
+                <button class="post-btn" onclick="sendMessage()">إرسال</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-screen" id="profileView" style="display: none;">
+        <div class="profile-card">
+            <img id="profileAvatarImg" class="profile-avatar" src="" alt="Avatar">
+            <h2 id="profileDisplayName">اسم المستخدم</h2>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
