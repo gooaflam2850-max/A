@@ -283,9 +283,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-        import { getAuth, signInWithRedirect, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD3dC6ucOkNeo65pHx4JzPDwQ_jgciBu6Q",
@@ -305,6 +305,18 @@
 
         let currentUser = null;
         let allPosts = [];
+
+        // استقبال نتيجة التوجيه من جوجل بعد العودة للموقع
+        getRedirectResult(auth)
+            .then((result) => {
+                if (result) {
+                    console.log("Logged in successfully:", result.user);
+                }
+            })
+            .catch((error) => {
+                console.error("Redirect Error:", error);
+                alert("خطأ في الدخول: " + error.message);
+            });
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -327,7 +339,7 @@
         });
 
         window.loginWithGoogle = function() {
-            signInWithRedirect(auth, provider).catch(err => alert(err.message));
+            signInWithRedirect(auth, provider);
         };
 
         window.logoutApp = function() {
