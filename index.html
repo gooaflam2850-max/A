@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#1877f2">
-<title>SocialX V2.0</title>
+<title>SocialX V2.6</title>
 <style>
 :root{--primary:#1877f2;--bg:#f0f2f5;--card:#fff;--text:#050505;--sub:#65676b;--border:#e4e6eb;--input:#f0f2f5;--danger:#e41e3f;--shadow:0 1px 4px #0001}
 body.dark{--bg:#18191a;--card:#242526;--text:#e4e6eb;--sub:#b0b3b8;--border:#393a3b;--input:#3a3b3c;--shadow:0 1px 4px #0004}
@@ -247,7 +247,11 @@ function restoreVideoStates(container,states){
 function renderFeed(){
   const el=$('feed');
   const states=saveVideoStates(el);
-  const arr=Object.entries(posts).sort((a,b)=>b[1].timestamp-a[1].timestamp);
+  // لا نعرض منشورات الحسابات التي لم تعد موجودة في users،
+  // ونرتب المنشورات الجديدة في الأعلى حسب timestamp.
+  const arr=Object.entries(posts)
+    .filter(([k,p])=>p && p.userId && users[p.userId])
+    .sort((a,b)=>(b[1].timestamp||0)-(a[1].timestamp||0));
   el.innerHTML=arr.length?arr.map(([k,p])=>postHTML(k,p)).join(''):'<div class="card" style="text-align:center;color:var(--sub)">لا توجد منشورات بعد.</div>';
   restoreVideoStates(el,states);
 }
@@ -255,7 +259,10 @@ function renderFeed(){
 function renderMyPosts(){
   const el=$('myPosts');
   const states=saveVideoStates(el);
-  el.innerHTML=Object.entries(posts).filter(([k,p])=>p.userId===me?.uid).sort((a,b)=>b[1].timestamp-a[1].timestamp).map(([k,p])=>postHTML(k,p)).join('')||'<div class="card">لا توجد منشورات.</div>';
+  el.innerHTML=Object.entries(posts)
+    .filter(([k,p])=>p.userId===me?.uid && users[p.userId])
+    .sort((a,b)=>(b[1].timestamp||0)-(a[1].timestamp||0))
+    .map(([k,p])=>postHTML(k,p)).join('')||'<div class="card">لا توجد منشورات.</div>';
   restoreVideoStates(el,states);
 }
 
@@ -275,7 +282,7 @@ window.acceptFriend=async id=>{await update(ref(db,'friendships/'+friendKey(me.u
 window.removeFriend=id=>remove(ref(db,'friendships/'+friendKey(me.uid,id)));
 
 function renderNotifications(){const a=Object.values(notes).sort((x,y)=>y.timestamp-x.timestamp);$('notifications').innerHTML=a.map(n=>`<div class="list"><div><b>${esc(n.text)}</b><br><small style="color:var(--sub)">${ago(n.timestamp)}</small></div></div>`).join('')||'<p style="color:var(--sub);padding:10px">لا توجد إشعارات.</p>'}
-window.viewUser=id=>{const u=users[id];if(!u)return;currentOther=id;$('otherAvatar').src=avatar(id);$('otherName').textContent=u.name;const s=status(id);$('friendAction').innerHTML=s==='none'?`<button class="btn" onclick="sendFriend('${id}')">إضافة صديق ➕</button>`:s==='sent'?`<button class="btn secondary" onclick="removeFriend('${id}')">إلغاء الطلب</button>`:s==='received'?`<button class="btn" onclick="acceptFriend('${id}')">قبول الطلب ✔️</button>`:`<button class="btn secondary" onclick="removeFriend('${id}')">إزالة الصداقة</button>`;$('otherPosts').innerHTML=Object.entries(posts).filter(([k,p])=>p.userId===id).sort((a,b)=>b[1].timestamp-a[1].timestamp).map(([k,p])=>postHTML(k,p)).join('')||'<div class="card">لا توجد منشورات.</div>';go('userPage')};
+window.viewUser=id=>{const u=users[id];if(!u)return;currentOther=id;$('otherAvatar').src=avatar(id);$('otherName').textContent=u.name;const s=status(id);$('friendAction').innerHTML=s==='none'?`<button class="btn" onclick="sendFriend('${id}')">إضافة صديق ➕</button>`:s==='sent'?`<button class="btn secondary" onclick="removeFriend('${id}')">إلغاء الطلب</button>`:s==='received'?`<button class="btn" onclick="acceptFriend('${id}')">قبول الطلب ✔️</button>`:`<button class="btn secondary" onclick="removeFriend('${id}')">إزالة الصداقة</button>`;$('otherPosts').innerHTML=Object.entries(posts).filter(([k,p])=>p.userId===id && users[id]).sort((a,b)=>(b[1].timestamp||0)-(a[1].timestamp||0)).map(([k,p])=>postHTML(k,p)).join('')||'<div class="card">لا توجد منشورات.</div>';go('userPage')};
 let currentOther='';
 window.saveName=async()=>{const n=$('newName').value.trim();if(!n)return toast('اكتب الاسم');await updateProfile(me,{displayName:n});await update(ref(db,'users/'+me.uid),{name:n});toast('تم تحديث الاسم')};
 window.uploadAvatar=async()=>{const f=$('avatarInput').files[0];if(!f)return toast('اختر صورة');try{const u=await upload(f);await updateProfile(me,{photoURL:u});await update(ref(db,'users/'+me.uid),{avatar:u});toast('تم تغيير الصورة')}catch{toast('فشل رفع الصورة')}};
@@ -289,4 +296,4 @@ window.toggleDark=()=>{document.body.classList.toggle('dark');localStorage.setIt
 <div id="bootError"><div class="box"><h2>SocialX</h2><p>حدث خطأ في تشغيل التطبيق.</p><pre id="bootErrorText"></pre><button class="btn" onclick="location.reload()">إعادة المحاولة</button></div></div>
 <script>window.addEventListener('error',e=>{let x=document.getElementById('bootError'),t=document.getElementById('bootErrorText');if(x&&t){t.textContent=e.message||'JavaScript error';x.style.display='block'}});window.addEventListener('unhandledrejection',e=>{let x=document.getElementById('bootError'),t=document.getElementById('bootErrorText');if(x&&t){t.textContent=(e.reason&&e.reason.message)||String(e.reason)||'Unexpected error';x.style.display='block'}});</script>
 </body>
-        </html>
+              </html>
