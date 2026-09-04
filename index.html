@@ -26,7 +26,7 @@ header{height:58px;background:var(--card);border-bottom:1px solid var(--border);
 .addstory{background:var(--input);border:2px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--primary);font-weight:bold}
 .trigger{display:flex;gap:10px;align-items:center}.avatar{width:42px;height:42px;border-radius:50%;object-fit:cover;background:#ddd}.pill{flex:1;background:var(--input);padding:11px 15px;border-radius:22px;color:var(--sub)}
 .post-head{display:flex;justify-content:space-between;align-items:center}.user{display:flex;gap:9px;align-items:center;cursor:pointer}.name{font-weight:bold;font-size:14px}.time{font-size:11px;color:var(--sub);margin-top:3px}
-.post-text{line-height:1.55;margin:10px 0;white-space:pre-wrap;overflow-wrap:anywhere}.media{width:100%;max-height:360px;object-fit:cover;border-radius:9px;background:#000}
+.post-text{line-height:1.55;margin:10px 0;white-space:pre-wrap;overflow-wrap:anywhere}.media{width:100%;max-height:360px;object-fit:cover;border-radius:9px;background:#000;display:block}
 .stats{display:flex;justify-content:space-between;color:var(--sub);font-size:12px;border-bottom:1px solid var(--border);padding:8px 0}.actions{display:flex}.action{flex:1;border:0;background:none;color:var(--sub);padding:9px 3px;font-weight:bold;border-radius:7px}.action.liked{color:var(--danger)}.comments{border-top:1px solid var(--border);margin-top:5px;padding-top:8px}.comment{background:var(--input);border-radius:13px;padding:8px 11px;margin:6px 0;font-size:13px}.comment small{color:var(--sub)}
 input,textarea,.select{width:100%;border:1px solid var(--border);background:var(--input);color:var(--text);border-radius:9px;padding:11px;outline:none;margin:5px 0 9px}.btn{width:100%;border:0;border-radius:9px;padding:11px;background:var(--primary);color:#fff;font-weight:bold}.secondary{background:var(--input);color:var(--text)}.danger{background:var(--danger);color:#fff}
 .nav{position:absolute;bottom:0;left:0;right:0;height:64px;background:var(--card);border-top:1px solid var(--border);display:flex;z-index:30}.nav button{flex:1;border:0;background:none;color:var(--sub);font-size:11px}.nav button b{display:block;font-size:20px}.nav button.active{color:var(--primary)}
@@ -208,12 +208,56 @@ window.viewStory=s=>{const w=window.open('','_blank','width=400,height=700');if(
 function postHTML(k,p){
  const likes=Object.keys(p.likes||{}), comments=Object.values(p.comments||{}), liked=!!p.likes?.[me.uid], owner=p.userId===me.uid;
  return `<div class="card" id="p_${k}"><div class="post-head"><div class="user" onclick="viewUser('${p.userId}')"><img class="avatar" src="${esc(p.userAvatar)}"><div><div class="name">${esc(p.userName)}</div><div class="time">${ago(p.timestamp)}</div></div></div>${owner?`<button class="icon" onclick="deletePost('${k}')">🗑️</button>`:''}</div>
- <div class="post-text">${esc(p.text)}</div>${p.mediaUrl?(p.mediaType==='video'?`<video class="media" controls playsinline src="${esc(p.mediaUrl)}"></video>`:`<img class="media" src="${esc(p.mediaUrl)}">`):''}
+ <div class="post-text">${esc(p.text)}</div>${p.mediaUrl?(p.mediaType==='video'?`<video class="media" data-post-key="${esc(k)}" controls playsinline src="${esc(p.mediaUrl)}"></video>`:`<img class="media" src="${esc(p.mediaUrl)}">`):''}
  <div class="stats"><span>❤️ ${likes.length} إعجاب</span><span>💬 ${comments.length} تعليق</span></div><div class="actions"><button class="action ${liked?'liked':''}" onclick="likePost('${k}')">❤️ ${liked?'أعجبني':'إعجاب'}</button><button class="action" onclick="toggleComments('${k}')">💬 تعليق</button><button class="action" onclick="sharePost('${k}')">↗️ مشاركة</button></div>
  <div class="comments hidden" id="c_${k}">${comments.map(c=>`<div class="comment"><b>${esc(c.userName)}</b><br>${esc(c.text)}<br><small>${ago(c.timestamp)}</small></div>`).join('')}<div class="search"><input id="ci_${k}" placeholder="اكتب تعليقاً..."><button class="btn smallbtn" onclick="comment('${k}')">إرسال</button></div></div></div>`
 }
-function renderFeed(){const arr=Object.entries(posts).sort((a,b)=>b[1].timestamp-a[1].timestamp);$('feed').innerHTML=arr.length?arr.map(([k,p])=>postHTML(k,p)).join(''):'<div class="card" style="text-align:center;color:var(--sub)">لا توجد منشورات بعد.</div>'}
-function renderMyPosts(){$('myPosts').innerHTML=Object.entries(posts).filter(([k,p])=>p.userId===me?.uid).sort((a,b)=>b[1].timestamp-a[1].timestamp).map(([k,p])=>postHTML(k,p)).join('')||'<div class="card">لا توجد منشورات.</div>'}
+// يحفظ حالة الفيديوهات قبل إعادة رسم المنشورات حتى لا يتوقف الفيديو
+// عندما يصل تحديث Firebase بسبب لايك أو تعليق من أي مستخدم.
+function saveVideoStates(container){
+  const states={};
+  if(!container)return states;
+  container.querySelectorAll('video[data-post-key]').forEach(v=>{
+    const key=v.dataset.postKey;
+    if(key) states[key]={currentTime:v.currentTime||0,paused:v.paused,muted:v.muted,volume:v.volume,playbackRate:v.playbackRate};
+  });
+  return states;
+}
+
+function restoreVideoStates(container,states){
+  if(!container||!states)return;
+  requestAnimationFrame(()=>{
+    container.querySelectorAll('video[data-post-key]').forEach(v=>{
+      const st=states[v.dataset.postKey];
+      if(!st)return;
+      try{
+        if(Number.isFinite(st.currentTime))v.currentTime=st.currentTime;
+        v.muted=st.muted;
+        v.volume=st.volume;
+        v.playbackRate=st.playbackRate||1;
+        if(!st.paused){
+          const p=v.play();
+          if(p&&typeof p.catch==='function')p.catch(()=>{});
+        }
+      }catch(e){}
+    });
+  });
+}
+
+function renderFeed(){
+  const el=$('feed');
+  const states=saveVideoStates(el);
+  const arr=Object.entries(posts).sort((a,b)=>b[1].timestamp-a[1].timestamp);
+  el.innerHTML=arr.length?arr.map(([k,p])=>postHTML(k,p)).join(''):'<div class="card" style="text-align:center;color:var(--sub)">لا توجد منشورات بعد.</div>';
+  restoreVideoStates(el,states);
+}
+
+function renderMyPosts(){
+  const el=$('myPosts');
+  const states=saveVideoStates(el);
+  el.innerHTML=Object.entries(posts).filter(([k,p])=>p.userId===me?.uid).sort((a,b)=>b[1].timestamp-a[1].timestamp).map(([k,p])=>postHTML(k,p)).join('')||'<div class="card">لا توجد منشورات.</div>';
+  restoreVideoStates(el,states);
+}
 
 window.createPost=async()=>{const text=$('postText').value.trim(),file=$('postFile').files[0],b=$('publishBtn');if(!text&&!file)return toast('اكتب شيئاً أو اختر ملفاً');b.disabled=true;b.textContent='جاري النشر...';try{let url='',type='';if(file){if(file.size>50*1024*1024)throw Error('حجم الملف أكبر من 50MB');type=file.type.startsWith('video/')?'video':'image';url=await upload(file)}await push(ref(db,'posts'),{userId:me.uid,userName:me.displayName||users[me.uid]?.name||'مستخدم',userAvatar:avatar(me.uid),text,mediaUrl:url,mediaType:type,timestamp:Date.now()});$('postText').value='';$('postFile').value='';closeModal('postModal');toast('تم نشر المنشور ❤️')}catch(e){toast(e.message||'فشل النشر')}finally{b.disabled=false;b.textContent='نشر الآن'}};
 window.deletePost=k=>{if(confirm('حذف المنشور؟'))remove(ref(db,'posts/'+k))};
@@ -245,4 +289,4 @@ window.toggleDark=()=>{document.body.classList.toggle('dark');localStorage.setIt
 <div id="bootError"><div class="box"><h2>SocialX</h2><p>حدث خطأ في تشغيل التطبيق.</p><pre id="bootErrorText"></pre><button class="btn" onclick="location.reload()">إعادة المحاولة</button></div></div>
 <script>window.addEventListener('error',e=>{let x=document.getElementById('bootError'),t=document.getElementById('bootErrorText');if(x&&t){t.textContent=e.message||'JavaScript error';x.style.display='block'}});window.addEventListener('unhandledrejection',e=>{let x=document.getElementById('bootError'),t=document.getElementById('bootErrorText');if(x&&t){t.textContent=(e.reason&&e.reason.message)||String(e.reason)||'Unexpected error';x.style.display='block'}});</script>
 </body>
-      </html>
+        </html>
