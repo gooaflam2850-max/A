@@ -72,7 +72,7 @@
         .modal-content { background: var(--card-bg); width: 100%; max-width: 480px; border-radius: 16px 16px 0 0; padding: 16px; max-height: 90vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
 
-        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #323232; color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; z-index: 300; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #323232; color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; z-index: 300; opacity: 0; transition: opacity 0.3s; pointer-events: none; text-align: center; max-width: 90%; }
         .toast.show { opacity: 1; }
     </style>
 
@@ -93,7 +93,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // بيانات Cloudinary الخاصة بحسابك
+        // إعدادات الحساب الخاصة بك
         const CLOUD_NAME = "dgzcvymc";
         const UPLOAD_PRESET = "crt4jycq";
 
@@ -235,21 +235,38 @@
             });
         }
 
-        // دالة الرفع إلى Cloudinary
-        async function uploadToCloudinary(file) {
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('upload_preset', UPLOAD_PRESET);
+        // دالة الرفع المحدثة لاكتشاف الخطأ بالتفصيل
+        function uploadToCloudinary(file) {
+            return new Promise((resolve, reject) => {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', UPLOAD_PRESET);
 
-            const resourceType = file.type.startsWith('video/') ? 'video' : 'image';
-            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`, {
-                method: 'POST',
-                body: formData
+                const resourceType = file.type.startsWith('video/') ? 'video' : 'image';
+                const xhr = new XMLHttpRequest();
+
+                xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`, true);
+
+                xhr.onload = function () {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        const response = JSON.parse(xhr.responseText);
+                        resolve(response.secure_url);
+                    } else {
+                        try {
+                            const errorRes = JSON.parse(xhr.responseText);
+                            reject(errorRes.error ? errorRes.error.message : 'خطأ غير معروف في السيرفر');
+                        } catch(e) {
+                            reject('فشل معالجة الرد من Cloudinary');
+                        }
+                    }
+                };
+
+                xhr.onerror = function () {
+                    reject('خطأ في الاتصال بالإنترنت');
+                };
+
+                xhr.send(formData);
             });
-
-            if (!res.ok) throw new Error('فشل الرفع إلى Cloudinary');
-            const data = await res.json();
-            return data.secure_url;
         }
 
         window.createPost = async function() {
@@ -260,7 +277,7 @@
             if (!text && !file) return showToast('لا يمكن نشر منشور فارغ!');
 
             btn.disabled = true;
-            btn.innerText = "جاري رفع الملف والنشر...";
+            btn.innerText = "جاري رفع الملف...";
 
             let mediaUrl = '';
             let mediaType = '';
@@ -269,11 +286,11 @@
                 try {
                     mediaType = file.type.startsWith('video/') ? 'video' : 'image';
                     mediaUrl = await uploadToCloudinary(file);
-                } catch(e) {
-                    console.error(e);
+                } catch(errorMsg) {
+                    console.error('Upload error:', errorMsg);
                     btn.disabled = false;
                     btn.innerText = "نشر الآن";
-                    return showToast('حدث خطأ أثناء رفع الملف، حاول مرة أخرى.');
+                    return showToast('سبب الخطأ: ' + errorMsg);
                 }
             }
 
@@ -341,7 +358,7 @@
             const t = document.getElementById('toast');
             t.innerText = msg;
             t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 2500);
+            setTimeout(() => t.classList.remove('show'), 4000);
         }
         function timeAgo(timestamp) {
             const diff = Math.floor((Date.now() - timestamp) / 1000);
@@ -385,7 +402,7 @@
         </div>
         <textarea class="form-control" id="postText" rows="4" placeholder="اكتب شيئاً هنا..."></textarea>
         <div style="margin-top: 10px;">
-            <label style="font-size:12px; color:var(--text-sub);">إضافة صورة أو فيديو بأي حجم (اختياري)</label>
+            <label style="font-size:12px; color:var(--text-sub);">إضافة صورة أو فيديو (اختياري)</label>
             <input type="file" class="form-control" id="postMediaInput" accept="image/*,video/*" style="margin-top:5px;">
         </div>
         <button class="btn" id="publishBtn" style="margin-top: 15px;" onclick="createPost()">نشر الآن</button>
