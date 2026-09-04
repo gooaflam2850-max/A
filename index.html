@@ -93,9 +93,9 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // إعدادات Cloudinary الخاصة بحسابك (تم تحديث الـ Preset للجديد)
+        // استخدام الـ Preset الافتراضي ml_default المكتشف بحسابك
         const CLOUD_NAME = "dgzcvymc";
-        const UPLOAD_PRESET = "my_app_preset";
+        const UPLOAD_PRESET = "ml_default";
 
         let myUser = JSON.parse(localStorage.getItem('sx_user'));
         if (!myUser) {
@@ -235,7 +235,6 @@
             });
         }
 
-        // دالة الرفع المباشرة عبر endpoint التلقائي (auto)
         function uploadToCloudinary(file) {
             return new Promise((resolve, reject) => {
                 const formData = new FormData();
