@@ -88,7 +88,9 @@
 
         /* Profile Screen */
         .profile-card { background: var(--card-bg); border-radius: 12px; padding: 20px; text-align: center; box-shadow: var(--shadow); margin-bottom: 15px; }
-        .profile-card .avatar { width: 80px; height: 80px; margin: 0 auto 10px; }
+        .profile-avatar-wrapper { position: relative; width: 80px; height: 80px; margin: 0 auto 10px; }
+        .profile-avatar-wrapper .avatar { width: 100%; height: 100%; }
+        .change-avatar-btn { position: absolute; bottom: 0; right: 0; background: var(--primary); color: white; border: none; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; border: 2px solid var(--card-bg); }
 
         /* Story View Modal */
         .story-viewer { position: fixed; inset: 0; background: #000; z-index: 300; display: none; flex-direction: column; justify-content: center; align-items: center; }
@@ -100,7 +102,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue, update, remove, onChildAdded, onChildRemoved, onChildChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD3dC6ucOkNeo65pHx4JzPDwQ_jgciBu6Q",
@@ -145,8 +147,8 @@
             const postsRef = ref(db, 'posts');
             onValue(postsRef, (snapshot) => {
                 postsData = snapshot.val() || {};
-                renderFeed();
-                renderMyPosts();
+                updateOrRenderFeed();
+                updateOrRenderMyPosts();
             });
 
             // Stories Listeners
@@ -169,7 +171,7 @@
             const now = Date.now();
             const validStories = Object.keys(storiesData)
                 .map(key => ({ key, ...storiesData[key] }))
-                .filter(s => (now - s.timestamp) < (24 * 60 * 60 * 1000)); // حذف الأقدم من 24 ساعة
+                .filter(s => (now - s.timestamp) < (24 * 60 * 60 * 1000));
 
             validStories.reverse().forEach(story => {
                 const div = document.createElement('div');
@@ -185,39 +187,96 @@
             });
         }
 
-        function renderFeed() {
+        // تحديث ذكي للمنشورات دون إعادة كتابة عنصر الـ HTML الفعلي إذا كان المنشور موجوداً بالفعل
+        function updateOrRenderFeed() {
             const container = document.getElementById('feedContainer');
-            container.innerHTML = '';
-            
             const postKeys = Object.keys(postsData).reverse();
+
             if (postKeys.length === 0) {
                 container.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top:20px;">لا توجد منشورات حالياً.</p>';
                 return;
             }
 
+            // إزالة المنشورات المحذوفة
+            Array.from(container.children).forEach(child => {
+                const key = child.id.replace('post-', '');
+                if (!postsData[key] && child.classList.contains('post-card')) {
+                    child.remove();
+                }
+            });
+
             postKeys.forEach(key => {
-                const div = createPostCardHTML(key, postsData[key]);
-                container.appendChild(div);
+                const existingPost = document.getElementById(`post-${key}`);
+                if (existingPost) {
+                    updatePostDOM(key, postsData[key]);
+                } else {
+                    const div = createPostCardHTML(key, postsData[key]);
+                    container.appendChild(div);
+                }
             });
         }
 
-        function renderMyPosts() {
+        function updateOrRenderMyPosts() {
             const container = document.getElementById('myPostsContainer');
-            container.innerHTML = '';
-
             const myKeys = Object.keys(postsData).filter(k => postsData[k].userId === currentUser.id).reverse();
+
             if (myKeys.length === 0) {
                 container.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top:20px;">لم تقم بنشر أي منشور بعد.</p>';
                 return;
             }
 
+            Array.from(container.children).forEach(child => {
+                const key = child.id.replace('mypost-', '');
+                if (!postsData[key] && child.classList.contains('post-card')) {
+                    child.remove();
+                }
+            });
+
             myKeys.forEach(key => {
-                const div = createPostCardHTML(key, postsData[key]);
-                container.appendChild(div);
+                const existingPost = document.getElementById(`mypost-${key}`);
+                if (existingPost) {
+                    updatePostDOM(key, postsData[key], true);
+                } else {
+                    const div = createPostCardHTML(key, postsData[key], true);
+                    container.appendChild(div);
+                }
             });
         }
 
-        function createPostCardHTML(key, post) {
+        // تحديث أجزاء التفاعل فقط (الإعجابات والتعليقات) بدون إرجاع الفيديو للبداية
+        function updatePostDOM(key, post, isProfile = false) {
+            const prefix = isProfile ? 'mypost-' : 'post-';
+            const likesArr = post.likes ? Object.keys(post.likes) : [];
+            const commentsArr = post.comments ? Object.values(post.comments) : [];
+            const isLiked = likesArr.includes(currentUser.id);
+
+            const likesCountEl = document.getElementById(`${prefix}likes-count-${key}`);
+            const commentsCountEl = document.getElementById(`${prefix}comments-count-${key}`);
+            const likeBtnEl = document.getElementById(`${prefix}like-btn-${key}`);
+            const commentsListEl = document.getElementById(`${prefix}comments-list-${key}`);
+
+            if (likesCountEl) likesCountEl.innerText = `❤️ ${likesArr.length} إعجاب`;
+            if (commentsCountEl) commentsCountEl.innerText = `💬 ${commentsArr.length} تعليق`;
+            
+            if (likeBtnEl) {
+                likeBtnEl.className = `action-btn ${isLiked ? 'liked' : ''}`;
+                likeBtnEl.innerHTML = `❤️ ${isLiked ? 'أعجبني' : 'إعجاب'}`;
+            }
+
+            if (commentsListEl) {
+                commentsListEl.innerHTML = commentsArr.map(c => `
+                    <div class="comment-item">
+                        <div class="comment-body">
+                            <div class="comment-user">${c.userName}</div>
+                            <div>${escapeHtml(c.text)}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function createPostCardHTML(key, post, isProfile = false) {
+            const prefix = isProfile ? 'mypost-' : 'post-';
             const likesArr = post.likes ? Object.keys(post.likes) : [];
             const commentsArr = post.comments ? Object.values(post.comments) : [];
             const isLiked = likesArr.includes(currentUser.id);
@@ -225,7 +284,7 @@
 
             const div = document.createElement('div');
             div.className = 'post-card';
-            div.id = `post-${key}`;
+            div.id = `${prefix}${key}`;
             div.innerHTML = `
                 <div class="post-header">
                     <div class="post-author">
@@ -243,15 +302,15 @@
                 ${post.mediaType === 'video' ? `<video src="${post.mediaUrl}" controls class="post-media" playsinline></video>` : ''}
 
                 <div class="post-stats">
-                    <span id="likes-count-${key}">❤️ ${likesArr.length} إعجاب</span>
-                    <span id="comments-count-${key}">💬 ${commentsArr.length} تعليق</span>
+                    <span id="${prefix}likes-count-${key}">❤️ ${likesArr.length} إعجاب</span>
+                    <span id="${prefix}comments-count-${key}">💬 ${commentsArr.length} تعليق</span>
                 </div>
                 <div class="post-actions">
-                    <button id="like-btn-${key}" class="action-btn ${isLiked ? 'liked' : ''}" onclick="likePost('${key}')">❤️ ${isLiked ? 'أعجبني' : 'إعجاب'}</button>
-                    <button class="action-btn" onclick="toggleComments('${key}')">💬 تعليق</button>
+                    <button id="${prefix}like-btn-${key}" class="action-btn ${isLiked ? 'liked' : ''}" onclick="likePost('${key}')">❤️ ${isLiked ? 'أعجبني' : 'إعجاب'}</button>
+                    <button class="action-btn" onclick="toggleComments('${key}', '${prefix}')">💬 تعليق</button>
                 </div>
-                <div class="comments-section" id="comments-${key}">
-                    <div id="comments-list-${key}">
+                <div class="comments-section" id="${prefix}comments-${key}">
+                    <div id="${prefix}comments-list-${key}">
                         ${commentsArr.map(c => `
                             <div class="comment-item">
                                 <div class="comment-body">
@@ -262,8 +321,8 @@
                         `).join('')}
                     </div>
                     <div class="comment-input-box">
-                        <input type="text" id="input-${key}" placeholder="اكتب تعليقاً...">
-                        <button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="addComment('${key}')">إرسال</button>
+                        <input type="text" id="${prefix}input-${key}" placeholder="اكتب تعليقاً...">
+                        <button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="addComment('${key}', '${prefix}')">إرسال</button>
                     </div>
                 </div>
             `;
@@ -367,6 +426,22 @@
             }
         };
 
+        window.changeAvatar = async function(fileInput) {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            showToast('جاري تغيير صورة البروفايل...');
+            try {
+                const imageUrl = await uploadToCloudinary(file);
+                currentUser.avatar = imageUrl;
+                localStorage.setItem('sx_user', JSON.stringify(currentUser));
+                updateUserUI();
+                showToast('تم تغيير صورة البروفايل بنجاح! 📸');
+            } catch(e) {
+                showToast('فشل رفع الصورة الشخصية!');
+            }
+        };
+
         window.saveProfile = function() {
             const newName = document.getElementById('editProfileName').value.trim();
             if (!newName) return showToast('الاسم لا يمكن أن يكون فارغاً!');
@@ -388,8 +463,8 @@
             }
         };
 
-        window.addComment = function(key) {
-            const input = document.getElementById(`input-${key}`);
+        window.addComment = function(key, prefix = 'post-') {
+            const input = document.getElementById(`${prefix}input-${key}`);
             const text = input.value.trim();
             if (!text) return showToast('اكتب تعليقاً أولاً!');
 
@@ -446,8 +521,8 @@
             }
         }
 
-        function toggleComments(key) {
-            const el = document.getElementById('comments-' + key);
+        function toggleComments(key, prefix = 'post-') {
+            const el = document.getElementById(`${prefix}comments-${key}`);
             el.style.display = el.style.display === 'block' ? 'none' : 'block';
         }
         function toggleDarkMode() {
@@ -497,7 +572,11 @@
         <!-- الملف الشخصي -->
         <div class="page-view tab-page" id="profileTab" style="display: none;">
             <div class="profile-card">
-                <img src="" class="avatar my-avatar">
+                <div class="profile-avatar-wrapper">
+                    <img src="" class="avatar my-avatar">
+                    <button class="change-avatar-btn" onclick="document.getElementById('avatarFileInput').click()">📷</button>
+                    <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="changeAvatar(this)">
+                </div>
                 <h3 class="my-name" style="margin-bottom: 10px;"></h3>
                 <input type="text" id="editProfileName" class="form-control" style="margin-bottom: 10px; text-align: center;">
                 <button class="btn" onclick="saveProfile()">حفظ الاسم الجديد</button>
