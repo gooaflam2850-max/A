@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SocialX - التطبيق المتكامل والاحترافي</title>
+    <title>SocialX - التطبيق الكامل</title>
     <meta name="theme-color" content="#1877f2">
     <style>
         :root {
@@ -33,13 +33,9 @@
 
         .mobile-container { width: 100%; max-width: 480px; height: 100vh; display: flex; flex-direction: column; background-color: var(--bg); position: relative; overflow: hidden; }
 
-        header { background: var(--card-bg); border-bottom: 1px solid var(--border); padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; gap: 10px; }
-        .logo { font-size: 20px; font-weight: 800; color: var(--primary); text-decoration: none; flex-shrink: 0; }
-        
-        .search-box { flex: 1; position: relative; }
-        .search-box input { width: 100%; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 13px; outline: none; }
-
-        .header-icons { display: flex; gap: 6px; align-items: center; }
+        header { background: var(--card-bg); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+        .logo { font-size: 22px; font-weight: 800; color: var(--primary); text-decoration: none; }
+        .header-icons { display: flex; gap: 8px; }
 
         .view-content { flex: 1; overflow-y: auto; padding-bottom: 70px; }
         .page-view { display: block; padding: 12px; }
@@ -54,15 +50,14 @@
 
         /* Navigation Bar */
         .nav-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--card-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 0; z-index: 100; }
-        .nav-btn { background: none; border: none; color: var(--text-sub); font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; position: relative; }
+        .nav-btn { background: none; border: none; color: var(--text-sub); font-size: 20px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; }
         .nav-btn.active { color: var(--primary); font-weight: bold; }
-        .badge { position: absolute; top: -3px; right: 8px; background: red; color: white; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 10px; display: none; }
 
         .post-trigger { background: var(--card-bg); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow); margin-bottom: 12px; cursor: pointer; }
         .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #ddd; flex-shrink: 0; }
         .trigger-input { flex: 1; background: var(--input-bg); border-radius: 20px; padding: 10px 15px; color: var(--text-sub); font-size: 14px; }
 
-        .post-card { background: var(--card-bg); border-radius: 12px; padding: 12px; margin-bottom: 12px; box-shadow: var(--shadow); position: relative; }
+        .post-card { background: var(--card-bg); border-radius: 12px; padding: 12px; margin-bottom: 12px; box-shadow: var(--shadow); }
         .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .post-author { display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .author-name { font-weight: bold; font-size: 14px; }
@@ -72,14 +67,9 @@
         .post-media { width: 100%; max-height: 320px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; background: #000; }
         
         .post-stats { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-sub); border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 8px; }
-        .post-actions { display: flex; justify-content: space-around; position: relative; }
-        
+        .post-actions { display: flex; justify-content: space-around; }
         .action-btn { background: none; border: none; color: var(--text-sub); font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; flex: 1; justify-content: center; }
-
-        /* Reaction Picker Popup */
-        .reactions-picker { position: absolute; top: -45px; right: 10px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 30px; padding: 5px 10px; display: none; gap: 8px; box-shadow: var(--shadow); z-index: 5; }
-        .reaction-icon { font-size: 20px; cursor: pointer; transition: transform 0.2s; }
-        .reaction-icon:hover { transform: scale(1.3); }
+        .action-btn.liked { color: var(--like-color); }
 
         .comments-section { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; display: none; }
         .comment-item { display: flex; gap: 8px; margin-bottom: 8px; font-size: 13px; }
@@ -89,9 +79,8 @@
         .comment-input-box input { flex: 1; padding: 8px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); outline: none; font-size: 12px; }
 
         .form-control { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg); color: var(--text); font-size: 14px; outline: none; }
-        .btn { width: 100%; padding: 10px; border: none; border-radius: 8px; background: var(--primary); color: white; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--primary); color: white; font-size: 15px; font-weight: bold; cursor: pointer; }
         .btn-secondary { background: var(--input-bg); color: var(--text); }
-        .btn-danger { background: #e41e3f; color: white; }
 
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; display: none; justify-content: center; align-items: flex-end; }
         .modal-content { background: var(--card-bg); width: 100%; max-width: 480px; border-radius: 16px 16px 0 0; padding: 16px; max-height: 90vh; overflow-y: auto; }
@@ -111,20 +100,9 @@
         .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #323232; color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; z-index: 400; opacity: 0; transition: opacity 0.3s; pointer-events: none; text-align: center; max-width: 90%; }
         .toast.show { opacity: 1; }
 
-        /* User & Chat Lists */
+        /* User List Items */
         .user-card { display: flex; align-items: center; justify-content: space-between; background: var(--card-bg); padding: 10px 12px; border-radius: 10px; margin-bottom: 8px; box-shadow: var(--shadow); }
         .user-info { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-
-        /* Chat Window */
-        .chat-view { display: flex; flex-direction: column; height: 100%; }
-        .chat-messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
-        .message-bubble { max-width: 75%; padding: 8px 12px; border-radius: 14px; font-size: 13px; word-break: break-word; }
-        .message-bubble.mine { background: var(--primary); color: white; align-self: flex-end; border-bottom-left-radius: 2px; }
-        .message-bubble.other { background: var(--input-bg); color: var(--text); align-self: flex-start; border-bottom-right-radius: 2px; }
-        .chat-input-bar { display: flex; gap: 8px; padding: 10px; background: var(--card-bg); border-top: 1px solid var(--border); }
-
-        .notif-item { display: flex; align-items: center; gap: 10px; background: var(--card-bg); padding: 10px; border-radius: 8px; margin-bottom: 8px; box-shadow: var(--shadow); font-size: 13px; }
-        .notif-item.unread { border-right: 4px solid var(--primary); font-weight: bold; }
     </style>
 
     <script type="module">
@@ -150,7 +128,7 @@
         let myUser = JSON.parse(localStorage.getItem('sx_user'));
         if (!myUser) {
             const id = 'u_' + Math.floor(1000 + Math.random() * 9000);
-            myUser = { id: id, name: 'مستخدم_' + id.substring(2), avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=' + id, privacy: 'public', blockedUsers: {} };
+            myUser = { id: id, name: 'مستخدم_' + id.substring(2), avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=' + id };
             localStorage.setItem('sx_user', JSON.stringify(myUser));
         }
 
@@ -159,8 +137,6 @@
         let storiesData = {};
         let usersData = {};
         let friendshipsData = {};
-        let notifsData = {};
-        let activeChatUserId = null;
 
         document.addEventListener("DOMContentLoaded", () => {
             syncUserProfile();
@@ -172,9 +148,7 @@
             set(ref(db, `users/${currentUser.id}`), {
                 id: currentUser.id,
                 name: currentUser.name,
-                avatar: currentUser.avatar,
-                privacy: currentUser.privacy || 'public',
-                blockedUsers: currentUser.blockedUsers || {}
+                avatar: currentUser.avatar
             });
         }
 
@@ -182,20 +156,6 @@
             document.querySelectorAll('.my-avatar').forEach(img => img.src = currentUser.avatar);
             document.querySelectorAll('.my-name').forEach(el => el.innerText = currentUser.name);
             document.getElementById('editProfileName').value = currentUser.name;
-            document.getElementById('privacySelect').value = currentUser.privacy || 'public';
-        }
-
-        function sendNotification(targetUserId, text, type = 'info') {
-            if (targetUserId === currentUser.id) return;
-            push(ref(db, `notifications/${targetUserId}`), {
-                senderId: currentUser.id,
-                senderName: currentUser.name,
-                senderAvatar: currentUser.avatar,
-                text: text,
-                type: type,
-                read: false,
-                timestamp: Date.now()
-            });
         }
 
         function initRealtimeListeners() {
@@ -212,22 +172,11 @@
 
             onValue(ref(db, 'users'), (snapshot) => {
                 usersData = snapshot.val() || {};
-                renderFriendsTab();
-                renderChatList();
             });
 
             onValue(ref(db, 'friendships'), (snapshot) => {
                 friendshipsData = snapshot.val() || {};
                 renderFriendsTab();
-            });
-
-            onValue(ref(db, `notifications/${currentUser.id}`), (snapshot) => {
-                notifsData = snapshot.val() || {};
-                renderNotifications();
-            });
-
-            onValue(ref(db, 'chats'), () => {
-                if (activeChatUserId) renderChatMessages(activeChatUserId);
             });
         }
 
@@ -246,7 +195,6 @@
                 .filter(s => (now - s.timestamp) < (24 * 60 * 60 * 1000));
 
             validStories.reverse().forEach(story => {
-                if (isBlocked(story.userId)) return;
                 const div = document.createElement('div');
                 div.className = 'story-item';
                 div.onclick = () => viewStory(story.mediaUrl, story.mediaType, story.userName);
@@ -260,69 +208,94 @@
             });
         }
 
-        function isBlocked(userId) {
-            return (currentUser.blockedUsers && currentUser.blockedUsers[userId]) ||
-                   (usersData[userId] && usersData[userId].blockedUsers && usersData[userId].blockedUsers[currentUser.id]);
-        }
-
-        function canSeePost(post) {
-            if (isBlocked(post.userId)) return false;
-            const author = usersData[post.userId];
-            const privacy = author ? (author.privacy || 'public') : 'public';
-
-            if (privacy === 'public' || post.userId === currentUser.id) return true;
-            if (privacy === 'private') return false;
-            if (privacy === 'friends') {
-                return getFriendStatus(post.userId) === 'friends';
-            }
-            return true;
-        }
-
         function updateOrRenderFeed() {
             const container = document.getElementById('feedContainer');
-            const searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
-            
-            let postKeys = Object.keys(postsData).reverse().filter(k => {
-                const p = postsData[k];
-                if (!canSeePost(p)) return false;
-                if (!searchQuery) return true;
-                return p.text.toLowerCase().includes(searchQuery) || p.userName.toLowerCase().includes(searchQuery);
-            });
+            const postKeys = Object.keys(postsData).reverse();
 
-            container.innerHTML = '';
             if (postKeys.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top:20px;">لا توجد منشورات للعرض.</p>';
+                container.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top:20px;">لا توجد منشورات حالياً.</p>';
                 return;
             }
 
+            Array.from(container.children).forEach(child => {
+                const key = child.id.replace('post-', '');
+                if (!postsData[key] && child.classList.contains('post-card')) {
+                    child.remove();
+                }
+            });
+
             postKeys.forEach(key => {
-                const div = createPostCardHTML(key, postsData[key]);
-                container.appendChild(div);
+                const existingPost = document.getElementById(`post-${key}`);
+                if (existingPost) {
+                    updatePostDOM(key, postsData[key]);
+                } else {
+                    const div = createPostCardHTML(key, postsData[key]);
+                    container.appendChild(div);
+                }
             });
         }
 
         function updateOrRenderMyPosts() {
             const container = document.getElementById('myPostsContainer');
-            if (!container) return;
             const myKeys = Object.keys(postsData).filter(k => postsData[k].userId === currentUser.id).reverse();
 
-            container.innerHTML = '';
             if (myKeys.length === 0) {
                 container.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top:20px;">لم تقم بنشر أي منشور بعد.</p>';
                 return;
             }
 
+            Array.from(container.children).forEach(child => {
+                const key = child.id.replace('mypost-', '');
+                if (!postsData[key] && child.classList.contains('post-card')) {
+                    child.remove();
+                }
+            });
+
             myKeys.forEach(key => {
-                const div = createPostCardHTML(key, postsData[key], 'mypost-');
-                container.appendChild(div);
+                const existingPost = document.getElementById(`mypost-${key}`);
+                if (existingPost) {
+                    updatePostDOM(key, postsData[key], 'mypost-');
+                } else {
+                    const div = createPostCardHTML(key, postsData[key], 'mypost-');
+                    container.appendChild(div);
+                }
             });
         }
 
-        function createPostCardHTML(key, post, prefix = 'post-') {
-            const reactions = post.reactions || {};
-            const reactionKeys = Object.keys(reactions);
-            const userReaction = reactions[currentUser.id] || null;
+        function updatePostDOM(key, post, prefix = 'post-') {
+            const likesArr = post.likes ? Object.keys(post.likes) : [];
             const commentsArr = post.comments ? Object.values(post.comments) : [];
+            const isLiked = likesArr.includes(currentUser.id);
+
+            const likesCountEl = document.getElementById(`${prefix}likes-count-${key}`);
+            const commentsCountEl = document.getElementById(`${prefix}comments-count-${key}`);
+            const likeBtnEl = document.getElementById(`${prefix}like-btn-${key}`);
+            const commentsListEl = document.getElementById(`${prefix}comments-list-${key}`);
+
+            if (likesCountEl) likesCountEl.innerText = `❤️ ${likesArr.length} إعجاب`;
+            if (commentsCountEl) commentsCountEl.innerText = `💬 ${commentsArr.length} تعليق`;
+            
+            if (likeBtnEl) {
+                likeBtnEl.className = `action-btn ${isLiked ? 'liked' : ''}`;
+                likeBtnEl.innerHTML = `❤️ ${isLiked ? 'أعجبني' : 'إعجاب'}`;
+            }
+
+            if (commentsListEl) {
+                commentsListEl.innerHTML = commentsArr.map(c => `
+                    <div class="comment-item">
+                        <div class="comment-body">
+                            <div class="comment-user" onclick="viewUserProfile('${c.userId}')">${c.userName}</div>
+                            <div>${escapeHtml(c.text)}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function createPostCardHTML(key, post, prefix = 'post-') {
+            const likesArr = post.likes ? Object.keys(post.likes) : [];
+            const commentsArr = post.comments ? Object.values(post.comments) : [];
+            const isLiked = likesArr.includes(currentUser.id);
             const isOwner = post.userId === currentUser.id;
 
             const div = document.createElement('div');
@@ -334,15 +307,10 @@
                         <img src="${post.userAvatar}" class="avatar">
                         <div>
                             <div class="author-name">${post.userName}</div>
-                            <div class="post-time">${timeAgo(post.timestamp)} ${post.edited ? '(معدل)' : ''}</div>
+                            <div class="post-time">${timeAgo(post.timestamp)}</div>
                         </div>
                     </div>
-                    ${isOwner ? `
-                        <div>
-                            <button class="icon-btn" onclick="openEditPostModal('${key}')" style="display:inline-flex; width:28px; height:28px; font-size:12px;">✏️</button>
-                            <button class="icon-btn" onclick="deletePost('${key}')" style="display:inline-flex; width:28px; height:28px; font-size:12px;">🗑️</button>
-                        </div>
-                    ` : ''}
+                    ${isOwner ? `<button class="icon-btn" onclick="deletePost('${key}')">🗑️</button>` : ''}
                 </div>
                 <div class="post-text">${escapeHtml(post.text)}</div>
                 
@@ -350,26 +318,13 @@
                 ${post.mediaType === 'video' ? `<video src="${post.mediaUrl}" controls class="post-media" playsinline></video>` : ''}
 
                 <div class="post-stats">
-                    <span id="${prefix}likes-count-${key}">👍 ${reactionKeys.length} تفاعل</span>
+                    <span id="${prefix}likes-count-${key}">❤️ ${likesArr.length} إعجاب</span>
                     <span id="${prefix}comments-count-${key}">💬 ${commentsArr.length} تعليق</span>
                 </div>
-
                 <div class="post-actions">
-                    <div class="reactions-picker" id="${prefix}reactions-${key}">
-                        <span class="reaction-icon" onclick="reactToPost('${key}', '👍')">👍</span>
-                        <span class="reaction-icon" onclick="reactToPost('${key}', '❤️')">❤️</span>
-                        <span class="reaction-icon" onclick="reactToPost('${key}', '😆')">😆</span>
-                        <span class="reaction-icon" onclick="reactToPost('${key}', '😮')">😮</span>
-                        <span class="reaction-icon" onclick="reactToPost('${key}', '😢')">😢</span>
-                        <span class="reaction-icon" onclick="reactToPost('${key}', '😡')">😡</span>
-                    </div>
-                    <button class="action-btn" onclick="toggleReactionsPicker('${key}', '${prefix}')">
-                        ${userReaction ? userReaction : '👍 تفاعل'}
-                    </button>
+                    <button id="${prefix}like-btn-${key}" class="action-btn ${isLiked ? 'liked' : ''}" onclick="likePost('${key}')">❤️ ${isLiked ? 'أعجبني' : 'إعجاب'}</button>
                     <button class="action-btn" onclick="toggleComments('${key}', '${prefix}')">💬 تعليق</button>
-                    <button class="action-btn" onclick="sharePost('${key}')">↩️ مشاركة</button>
                 </div>
-
                 <div class="comments-section" id="${prefix}comments-${key}">
                     <div id="${prefix}comments-list-${key}">
                         ${commentsArr.map(c => `
@@ -390,54 +345,6 @@
             return div;
         }
 
-        window.toggleReactionsPicker = function(key, prefix = 'post-') {
-            const picker = document.getElementById(`${prefix}reactions-${key}`);
-            picker.style.display = picker.style.display === 'flex' ? 'none' : 'flex';
-        };
-
-        window.reactToPost = function(key, emoji) {
-            const post = postsData[key];
-            const currentReaction = post.reactions ? post.reactions[currentUser.id] : null;
-
-            if (currentReaction === emoji) {
-                remove(ref(db, `posts/${key}/reactions/${currentUser.id}`));
-            } else {
-                update(ref(db, `posts/${key}/reactions`), { [currentUser.id]: emoji });
-                sendNotification(post.userId, `تفائل بـ ${emoji} على منشورك.`, 'like');
-            }
-        };
-
-        window.sharePost = function(key) {
-            const original = postsData[key];
-            push(ref(db, 'posts'), {
-                userId: currentUser.id,
-                userName: currentUser.name,
-                userAvatar: currentUser.avatar,
-                text: `[مشاركة من ${original.userName}]:\n${original.text}`,
-                mediaUrl: original.mediaUrl || '',
-                mediaType: original.mediaType || '',
-                timestamp: Date.now()
-            });
-            showToast('تمت مشاركة المنشور على صفحك! 🔁');
-        };
-
-        window.openEditPostModal = function(key) {
-            const post = postsData[key];
-            document.getElementById('editPostKey').value = key;
-            document.getElementById('editPostText').value = post.text;
-            openModal('editPostModal');
-        };
-
-        window.saveEditPost = function() {
-            const key = document.getElementById('editPostKey').value;
-            const text = document.getElementById('editPostText').value.trim();
-            if (!text) return showToast('لا يمكن ترك المنشور فارغاً');
-
-            update(ref(db, `posts/${key}`), { text: text, edited: true });
-            closeModal('editPostModal');
-            showToast('تم تعديل المنشور بنجاح!');
-        };
-
         function uploadToCloudinary(file) {
             return new Promise((resolve, reject) => {
                 const formData = new FormData();
@@ -451,7 +358,9 @@
                     if (xhr.status >= 200 && xhr.status < 300) {
                         const response = JSON.parse(xhr.responseText);
                         resolve(response.secure_url);
-                    } else { reject('خطأ في الرفع'); }
+                    } else {
+                        reject('خطأ في الرفع');
+                    }
                 };
                 xhr.onerror = function () { reject('خطأ شبكة'); };
                 xhr.send(formData);
@@ -552,16 +461,24 @@
 
         window.saveProfile = function() {
             const newName = document.getElementById('editProfileName').value.trim();
-            const privacy = document.getElementById('privacySelect').value;
-
             if (!newName) return showToast('الاسم لا يمكن أن يكون فارغاً!');
 
             currentUser.name = newName;
-            currentUser.privacy = privacy;
             localStorage.setItem('sx_user', JSON.stringify(currentUser));
             syncUserProfile();
             updateUserUI();
-            showToast('تم تحديث إعدادات حسابك!');
+            showToast('تم تحديث بياناتك!');
+        };
+
+        window.likePost = function(key) {
+            const likesRef = ref(db, `posts/${key}/likes/${currentUser.id}`);
+            const currentLikes = postsData[key] && postsData[key].likes ? postsData[key].likes : {};
+            if (currentLikes[currentUser.id]) {
+                remove(likesRef);
+            } else {
+                update(ref(db, `posts/${key}/likes`), { [currentUser.id]: true });
+                showToast('أعجبك المنشور ❤️');
+            }
         };
 
         window.addComment = function(key, prefix = 'post-') {
@@ -575,10 +492,6 @@
                 text: text,
                 timestamp: Date.now()
             });
-
-            const post = postsData[key];
-            sendNotification(post.userId, `علق على منشورك: "${text.substring(0, 20)}..."`, 'comment');
-
             input.value = '';
             showToast('تم إضافة تعليقك 💬');
         };
@@ -590,6 +503,7 @@
             }
         };
 
+        /* Friends & User View Functions */
         function getFriendStatus(targetUserId) {
             const pairId1 = `${currentUser.id}_${targetUserId}`;
             const pairId2 = `${targetUserId}_${currentUser.id}`;
@@ -610,7 +524,6 @@
                 actionUser: currentUser.id,
                 status: 'pending'
             });
-            sendNotification(targetUserId, 'أرسل لك طلب صداقة 👥', 'friend');
             showToast('تم إرسال طلب الصداقة 👥');
         };
 
@@ -623,7 +536,6 @@
                 status: 'accepted',
                 actionUser: currentUser.id
             });
-            sendNotification(targetUserId, 'قبل طلب الصداقة الخاص بك 🎉', 'friend');
             showToast('أصبحتم أصدقاء الآن! 🎉');
         };
 
@@ -634,15 +546,6 @@
 
             remove(ref(db, `friendships/${key}`));
             showToast('تم الغاء الصداقة / الطلب.');
-        };
-
-        window.blockUser = function(targetUserId) {
-            if (!currentUser.blockedUsers) currentUser.blockedUsers = {};
-            currentUser.blockedUsers[targetUserId] = true;
-            localStorage.setItem('sx_user', JSON.stringify(currentUser));
-            syncUserProfile();
-            showToast('تم حظر هذا المستخدم.');
-            switchTab('home');
         };
 
         window.viewUserProfile = function(userId) {
@@ -658,32 +561,25 @@
             document.getElementById('viewUserName').innerText = u.name;
 
             const btnContainer = document.getElementById('friendActionBtnContainer');
-            let btns = '';
-
             if (status === 'none') {
-                btns += `<button class="btn" onclick="sendFriendRequest('${userId}'); viewUserProfile('${userId}')">إضافة صديق ➕</button>`;
+                btnContainer.innerHTML = `<button class="btn" onclick="sendFriendRequest('${userId}'); viewUserProfile('${userId}')">إضافة صديق ➕</button>`;
             } else if (status === 'sent') {
-                btns += `<button class="btn btn-secondary" onclick="removeFriendship('${userId}'); viewUserProfile('${userId}')">إلغاء طلب الصداقة ✕</button>`;
+                btnContainer.innerHTML = `<button class="btn btn-secondary" onclick="removeFriendship('${userId}'); viewUserProfile('${userId}')">إلغاء طلب الصداقة ✕</button>`;
             } else if (status === 'received') {
-                btns += `
+                btnContainer.innerHTML = `
                     <button class="btn" style="margin-bottom:6px;" onclick="acceptFriendRequest('${userId}'); viewUserProfile('${userId}')">قبول الطلب ✔️</button>
                     <button class="btn btn-secondary" onclick="removeFriendship('${userId}'); viewUserProfile('${userId}')">رفض ✕</button>
                 `;
             } else if (status === 'friends') {
-                btns += `<button class="btn btn-secondary" style="margin-bottom:6px;" onclick="openChat('${userId}')">مراسلة 💬</button>`;
-                btns += `<button class="btn btn-secondary" onclick="removeFriendship('${userId}'); viewUserProfile('${userId}')">إزالة من الأصدقاء 👥</button>`;
+                btnContainer.innerHTML = `<button class="btn btn-secondary" onclick="removeFriendship('${userId}'); viewUserProfile('${userId}')">إزالة من الأصدقاء 👥</button>`;
             }
-
-            btns += `<button class="btn btn-danger" style="margin-top:8px;" onclick="blockUser('${userId}')">حظر المستخدم 🚫</button>`;
-
-            btnContainer.innerHTML = btns;
 
             const postsContainer = document.getElementById('viewUserPostsContainer');
             postsContainer.innerHTML = '';
-            const userPosts = Object.keys(postsData).filter(k => postsData[k].userId === userId && canSeePost(postsData[k])).reverse();
+            const userPosts = Object.keys(postsData).filter(k => postsData[k].userId === userId).reverse();
 
             if (userPosts.length === 0) {
-                postsContainer.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top:10px;">لا توجد منشورات متاحة لهذا المستخدم.</p>';
+                postsContainer.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top:10px;">لا توجد منشورات لهذا المستخدم.</p>';
             } else {
                 userPosts.forEach(key => {
                     const div = createPostCardHTML(key, postsData[key], 'userpost-');
@@ -699,16 +595,10 @@
             if (!container) return;
             container.innerHTML = '';
 
-            const searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
-
-            const otherUserIds = Object.keys(usersData).filter(id => {
-                if (id === currentUser.id || isBlocked(id)) return false;
-                if (!searchQuery) return true;
-                return usersData[id].name.toLowerCase().includes(searchQuery);
-            });
+            const otherUserIds = Object.keys(usersData).filter(id => id !== currentUser.id);
 
             if (otherUserIds.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top:10px;">لا يوجد مستخدمون للنعرض.</p>';
+                container.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top:10px;">لا يوجد مستخدمون آخرون بعد.</p>';
                 return;
             }
 
@@ -724,7 +614,7 @@
                 } else if (status === 'received') {
                     btnHTML = `<button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="acceptFriendRequest('${id}')">قبول ✔️</button>`;
                 } else if (status === 'friends') {
-                    btnHTML = `<button class="btn btn-secondary" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openChat('${id}')">رسالة 💬</button>`;
+                    btnHTML = `<span style="font-size:12px; color:var(--primary); font-weight:bold;">صديق 🤝</span>`;
                 }
 
                 const div = document.createElement('div');
@@ -739,135 +629,6 @@
                 container.appendChild(div);
             });
         }
-
-        /* Chat Logic */
-        window.openChat = function(userId) {
-            activeChatUserId = userId;
-            const u = usersData[userId] || { name: 'مستخدم' };
-            document.getElementById('chatTitleName').innerText = u.name;
-            switchTab('chatRoom');
-            renderChatMessages(userId);
-        };
-
-        function getChatKey(id1, id2) {
-            return id1 < id2 ? `${id1}_${id2}` : `${id2}_${id1}`;
-        }
-
-        function renderChatMessages(userId) {
-            const chatKey = getChatKey(currentUser.id, userId);
-            const container = document.getElementById('chatMessagesContainer');
-            
-            get(ref(db, `chats/${chatKey}`)).then(snapshot => {
-                const msgs = snapshot.val() || {};
-                container.innerHTML = '';
-                Object.values(msgs).forEach(m => {
-                    const div = document.createElement('div');
-                    div.className = `message-bubble ${m.senderId === currentUser.id ? 'mine' : 'other'}`;
-                    div.innerText = m.text;
-                    container.appendChild(div);
-                });
-                container.scrollTop = container.scrollHeight;
-            });
-        }
-
-        window.sendChatMessage = function() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-            if (!text || !activeChatUserId) return;
-
-            const chatKey = getChatKey(currentUser.id, activeChatUserId);
-            push(ref(db, `chats/${chatKey}`), {
-                senderId: currentUser.id,
-                text: text,
-                timestamp: Date.now()
-            });
-
-            sendNotification(activeChatUserId, `أرسل لك رسالة خاصة: "${text.substring(0, 15)}..."`, 'chat');
-
-            input.value = '';
-            renderChatMessages(activeChatUserId);
-        };
-
-        function renderChatList() {
-            const container = document.getElementById('chatListContainer');
-            if (!container) return;
-            container.innerHTML = '';
-
-            const friends = Object.keys(usersData).filter(id => id !== currentUser.id && getFriendStatus(id) === 'friends');
-
-            if (friends.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top:20px;">قم بإضافة أصدقاء لبدء المحادثات.</p>';
-                return;
-            }
-
-            friends.forEach(id => {
-                const u = usersData[id];
-                const div = document.createElement('div');
-                div.className = 'user-card';
-                div.onclick = () => openChat(id);
-                div.innerHTML = `
-                    <div class="user-info">
-                        <img src="${u.avatar}" class="avatar">
-                        <div>
-                            <div class="author-name">${u.name}</div>
-                            <div style="font-size:11px; color:var(--text-sub);">انقر للدردشة</div>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function renderNotifications() {
-            const container = document.getElementById('notifList');
-            const badge = document.getElementById('notifBadge');
-            if (!container) return;
-
-            const list = Object.values(notifsData).reverse();
-            const unreadCount = list.filter(n => !n.read).length;
-
-            if (unreadCount > 0) {
-                badge.style.display = 'inline-block';
-                badge.innerText = unreadCount;
-            } else {
-                badge.style.display = 'none';
-            }
-
-            container.innerHTML = '';
-            if (list.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top:20px;">لا توجد إشعارات حالياً.</p>';
-                return;
-            }
-
-            list.forEach(n => {
-                const div = document.createElement('div');
-                div.className = `notif-item ${n.read ? '' : 'unread'}`;
-                div.innerHTML = `
-                    <img src="${n.senderAvatar}" class="avatar" style="width:32px; height:32px;">
-                    <div>
-                        <div><strong>${n.senderName}</strong> ${n.text}</div>
-                        <div style="font-size:10px; color:var(--text-sub);">${timeAgo(n.timestamp)}</div>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        window.markNotifsRead = function() {
-            get(ref(db, `notifications/${currentUser.id}`)).then(snapshot => {
-                const data = snapshot.val();
-                if (data) {
-                    Object.keys(data).forEach(k => {
-                        update(ref(db, `notifications/${currentUser.id}/${k}`), { read: true });
-                    });
-                }
-            });
-        };
-
-        window.onSearchChange = function() {
-            updateOrRenderFeed();
-            renderFriendsTab();
-        };
 
         window.viewStory = function(url, type, name) {
             const viewer = document.getElementById('storyViewer');
@@ -902,20 +663,11 @@
             } else if (tab === 'friends') {
                 document.getElementById('friendsTab').style.display = 'block';
                 document.getElementById('navFriends').classList.add('active');
-            } else if (tab === 'chats') {
-                document.getElementById('chatsTab').style.display = 'block';
-                document.getElementById('navChats').classList.add('active');
-            } else if (tab === 'notifs') {
-                document.getElementById('notifsTab').style.display = 'block';
-                document.getElementById('navNotifs').classList.add('active');
-                if (window.markNotifsRead) window.markNotifsRead();
             } else if (tab === 'profile') {
                 document.getElementById('profileTab').style.display = 'block';
                 document.getElementById('navProfile').classList.add('active');
             } else if (tab === 'userProfile') {
                 document.getElementById('userProfileTab').style.display = 'block';
-            } else if (tab === 'chatRoom') {
-                document.getElementById('chatRoomTab').style.display = 'block';
             }
         }
 
@@ -949,9 +701,6 @@
 <div class="mobile-container">
     <header>
         <a href="#" class="logo">SocialX</a>
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="بحث عن أشخاص أو منشورات..." oninput="onSearchChange()">
-        </div>
         <div class="header-icons">
             <button class="icon-btn" onclick="toggleDarkMode()">🌙</button>
         </div>
@@ -972,35 +721,8 @@
 
         <!-- الأصدقاء واكتشاف المستخدمين -->
         <div class="page-view tab-page" id="friendsTab" style="display: none;">
-            <h3 style="margin-bottom: 12px; color: var(--text);">الأصدقاء والمستخدمين</h3>
+            <h3 style="margin-bottom: 12px; color: var(--text);">المستخدمين والطلبات</h3>
             <div id="allUsersList"></div>
-        </div>
-
-        <!-- قائمة الدردشات -->
-        <div class="page-view tab-page" id="chatsTab" style="display: none;">
-            <h3 style="margin-bottom: 12px; color: var(--text);">المحادثات المباشرة</h3>
-            <div id="chatListContainer"></div>
-        </div>
-
-        <!-- غرفة الدردشة -->
-        <div class="page-view tab-page" id="chatRoomTab" style="display: none; padding:0; height:100%;">
-            <div class="chat-view">
-                <div style="padding:10px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; background:var(--card-bg);">
-                    <button class="btn btn-secondary" style="width:auto; padding:4px 8px;" onclick="switchTab('chats')">←</button>
-                    <h4 id="chatTitleName"></h4>
-                </div>
-                <div class="chat-messages" id="chatMessagesContainer"></div>
-                <div class="chat-input-bar">
-                    <input type="text" class="form-control" id="chatInput" placeholder="اكتب رسالة...">
-                    <button class="btn" style="width:auto; padding:0 15px;" onclick="sendChatMessage()">إرسال</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- الإشعارات -->
-        <div class="page-view tab-page" id="notifsTab" style="display: none;">
-            <h3 style="margin-bottom: 12px; color: var(--text);">الإشعارات</h3>
-            <div id="notifList"></div>
         </div>
 
         <!-- بروفايل المستخدمين الآخرين -->
@@ -1017,7 +739,7 @@
             <div id="viewUserPostsContainer"></div>
         </div>
 
-        <!-- الملف الشخصي والإعدادات -->
+        <!-- الملف الشخصي -->
         <div class="page-view tab-page" id="profileTab" style="display: none;">
             <div class="profile-card">
                 <div class="profile-avatar-wrapper">
@@ -1027,37 +749,20 @@
                 </div>
                 <h3 class="my-name" style="margin-bottom: 10px;"></h3>
                 <input type="text" id="editProfileName" class="form-control" style="margin-bottom: 10px; text-align: center;">
-                
-                <div style="margin-bottom:12px; text-align:right;">
-                    <label style="font-size:12px; color:var(--text-sub);">خصوصية الحساب والمنشورات:</label>
-                    <select id="privacySelect" class="form-control" style="margin-top:4px;">
-                        <option value="public">عام (الجميع يمكنه الرؤية)</option>
-                        <option value="friends">الأصدقاء فقط</option>
-                        <option value="private">خاص (أنا فقط)</option>
-                    </select>
-                </div>
-
-                <button class="btn" onclick="saveProfile()">حفظ التعديلات</button>
+                <button class="btn" onclick="saveProfile()">حفظ الاسم الجديد</button>
             </div>
             <h4 style="margin-bottom: 10px; color: var(--text-sub);">منشوراتي:</h4>
             <div id="myPostsContainer"></div>
         </div>
     </div>
 
-    <!-- Navigation Bar -->
+    <!-- Navigation -->
     <div class="nav-bar">
         <button class="nav-btn active" id="navHome" onclick="switchTab('home')">
             <span>🏠</span>الرئيسية
         </button>
         <button class="nav-btn" id="navFriends" onclick="switchTab('friends')">
             <span>👥</span>الأصدقاء
-        </button>
-        <button class="nav-btn" id="navChats" onclick="switchTab('chats')">
-            <span>💬</span>الرسائل
-        </button>
-        <button class="nav-btn" id="navNotifs" onclick="switchTab('notifs')">
-            <span>🔔</span>الإشعارات
-            <span class="badge" id="notifBadge"></span>
         </button>
         <button class="nav-btn" id="navProfile" onclick="switchTab('profile')">
             <span>👤</span>حسابي
@@ -1078,19 +783,6 @@
             <input type="file" class="form-control" id="postMediaInput" accept="image/*,video/*" style="margin-top:5px;">
         </div>
         <button class="btn" id="publishBtn" style="margin-top: 15px;" onclick="createPost()">نشر الآن</button>
-    </div>
-</div>
-
-<!-- Modal Edit Post -->
-<div class="modal" id="editPostModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>تعديل المنشور</h3>
-            <button class="icon-btn" onclick="closeModal('editPostModal')">✕</button>
-        </div>
-        <input type="hidden" id="editPostKey">
-        <textarea class="form-control" id="editPostText" rows="4"></textarea>
-        <button class="btn" style="margin-top: 15px;" onclick="saveEditPost()">حفظ التعديل</button>
     </div>
 </div>
 
