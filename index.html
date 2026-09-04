@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SocialX - شبكة اجتماعية متكاملة</title>
+    <title>SocialX - شبكة اجتماعية لايف</title>
     <meta name="theme-color" content="#1877f2">
-    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIlNvY2lhbFgiLAogICJzaG9ydF9uYW1lIjogIlNvY2lhbFgiLAogICJzdGFydF91cmwiOiAiLi8iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmMGYyZjUiLAogICJ0aGVtZV9jb2xvciI6ICIjMTg3N2YyIgogfQ==">
     <style>
         :root {
             --primary: #1877f2;
-            --primary-hover: #166fe5;
             --bg: #f0f2f5;
             --card-bg: #ffffff;
             --text: #050505;
@@ -30,28 +28,16 @@
             --shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; height: 100vh; overflow: hidden; }
 
         .mobile-container { width: 100%; max-width: 480px; height: 100vh; display: flex; flex-direction: column; background-color: var(--bg); position: relative; overflow: hidden; }
 
-        /* Auth Screen */
-        .auth-screen { position: absolute; inset: 0; background: var(--card-bg); z-index: 100; display: flex; flex-direction: column; padding: 20px; overflow-y: auto; justify-content: center; }
-        .auth-header { text-align: center; margin-bottom: 25px; }
-        .auth-header h1 { color: var(--primary); font-size: 32px; font-weight: 800; letter-spacing: -1px; }
-        .auth-header p { color: var(--text-sub); font-size: 14px; margin-top: 5px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: var(--text-sub); }
-        .form-control { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg); color: var(--text); font-size: 14px; outline: none; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--primary); color: white; font-size: 15px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
-        .btn-secondary { background: transparent; color: var(--primary); border: 1px solid var(--primary); margin-top: 10px; }
-        
         /* App Header */
         header { background: var(--card-bg); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
         .logo { font-size: 22px; font-weight: 800; color: var(--primary); text-decoration: none; }
         .header-icons { display: flex; gap: 10px; }
-        .icon-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--input-bg); border: none; color: var(--text); display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; position: relative; }
-        .badge { position: absolute; top: 2px; right: 2px; background: var(--like-color); color: white; font-size: 10px; padding: 2px 5px; border-radius: 10px; font-weight: bold; }
+        .icon-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--input-bg); border: none; color: var(--text); display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; }
 
         /* Views Body */
         .view-content { flex: 1; overflow-y: auto; padding-bottom: 70px; }
@@ -68,7 +54,6 @@
         .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .post-author { display: flex; align-items: center; gap: 10px; }
         .author-name { font-weight: bold; font-size: 14px; }
-        .author-username { font-size: 12px; color: var(--text-sub); }
         .post-time { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
         .post-text { font-size: 14px; line-height: 1.4; margin-bottom: 10px; white-space: pre-line; word-break: break-word; }
         .post-img { width: 100%; max-height: 320px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
@@ -85,141 +70,247 @@
         .comment-input-box { display: flex; gap: 8px; margin-top: 10px; }
         .comment-input-box input { flex: 1; padding: 8px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); outline: none; font-size: 12px; }
 
+        /* Form & Buttons */
+        .form-control { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg); color: var(--text); font-size: 14px; outline: none; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--primary); color: white; font-size: 15px; font-weight: bold; cursor: pointer; }
+
         /* Modal */
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; justify-content: center; align-items: flex-end; }
-        .modal-content { background: var(--card-bg); width: 100%; max-width: 480px; border-radius: 16px 16px 0 0; padding: 16px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.2s ease; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-content { background: var(--card-bg); width: 100%; max-width: 480px; border-radius: 16px 16px 0 0; padding: 16px; max-height: 90vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-
-        /* Bottom Nav */
-        .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: var(--card-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; z-index: 10; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-sub); font-size: 10px; text-decoration: none; cursor: pointer; gap: 3px; border: none; background: none; }
-        .nav-item.active { color: var(--primary); }
-        .nav-item span { font-size: 18px; }
-
-        /* Profile Screen */
-        .profile-header { background: var(--card-bg); border-radius: 12px; padding: 16px; text-align: center; box-shadow: var(--shadow); margin-bottom: 12px; }
-        .profile-header .avatar { width: 80px; height: 80px; margin: 0 auto 10px; }
-        .profile-stats { display: flex; justify-content: center; gap: 20px; margin: 15px 0; font-size: 14px; }
-        .stat-box { display: flex; flex-direction: column; font-weight: bold; }
-        .stat-box span { font-size: 11px; color: var(--text-sub); font-weight: normal; }
-
-        /* Notifications */
-        .notif-item { background: var(--card-bg); padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow); font-size: 13px; }
-        .notif-item.unread { border-right: 4px solid var(--primary); background: rgba(24, 119, 242, 0.05); }
 
         /* Toast */
         .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #323232; color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; z-index: 300; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
         .toast.show { opacity: 1; }
     </style>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD3dC6ucOkNeo65pHx4JzPDwQ_jgciBu6Q",
+            authDomain: "facebook-b5664.firebaseapp.com",
+            databaseURL: "https://facebook-b5664-default-rtdb.firebaseio.com",
+            projectId: "facebook-b5664",
+            storageBucket: "facebook-b5664.firebasestorage.app",
+            messagingSenderId: "314653723710",
+            appId: "1:314653723710:web:c788497dfa805de6e3556f"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // حساب مستخدم معرف عشوائياً لكل جهاز
+        let myUser = JSON.parse(localStorage.getItem('sx_user'));
+        if (!myUser) {
+            const id = 'u_' + Math.floor(1000 + Math.random() * 9000);
+            myUser = { id: id, name: 'مستخدم_' + id.substring(2), avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=' + id };
+            localStorage.setItem('sx_user', JSON.stringify(myUser));
+        }
+
+        window.currentUser = myUser;
+        let postsData = {};
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll('.my-avatar').forEach(img => img.src = currentUser.avatar);
+            listenToPostsRealtime();
+        });
+
+        // الاستماع اللحظي للمنشورات وتحديثها على التليفونين بنفس الثانية
+        function listenToPostsRealtime() {
+            const postsRef = ref(db, 'posts');
+            onValue(postsRef, (snapshot) => {
+                postsData = snapshot.val() || {};
+                renderFeed();
+            });
+        }
+
+        function renderFeed() {
+            const container = document.getElementById('feedContainer');
+            container.innerHTML = '';
+            
+            const postKeys = Object.keys(postsData).reverse();
+            if (postKeys.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top:20px;">لا توجد منشورات حالياً. كن أول من ينشر!</p>';
+                return;
+            }
+
+            postKeys.forEach(key => {
+                const post = postsData[key];
+                const likesArr = post.likes ? Object.keys(post.likes) : [];
+                const commentsArr = post.comments ? Object.values(post.comments) : [];
+                const isLiked = likesArr.includes(currentUser.id);
+                const isOwner = post.userId === currentUser.id;
+
+                const div = document.createElement('div');
+                div.className = 'post-card';
+                div.innerHTML = `
+                    <div class="post-header">
+                        <div class="post-author">
+                            <img src="${post.userAvatar}" class="avatar">
+                            <div>
+                                <div class="author-name">${post.userName}</div>
+                                <div class="post-time">${timeAgo(post.timestamp)}</div>
+                            </div>
+                        </div>
+                        ${isOwner ? `<button class="icon-btn" onclick="deletePost('${key}')">🗑️</button>` : ''}
+                    </div>
+                    <div class="post-text">${escapeHtml(post.text)}</div>
+                    ${post.image ? `<img src="${post.image}" class="post-img">` : ''}
+                    <div class="post-stats">
+                        <span>❤️ ${likesArr.length} إعجاب</span>
+                        <span>💬 ${commentsArr.length} تعليق</span>
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="likePost('${key}')">❤️ ${isLiked ? 'أعجبني' : 'إعجاب'}</button>
+                        <button class="action-btn" onclick="toggleComments('${key}')">💬 تعليق</button>
+                    </div>
+                    <div class="comments-section" id="comments-${key}">
+                        <div>
+                            ${commentsArr.map(c => `
+                                <div class="comment-item">
+                                    <div class="comment-body">
+                                        <div class="comment-user">${c.userName}</div>
+                                        <div>${escapeHtml(c.text)}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="comment-input-box">
+                            <input type="text" id="input-${key}" placeholder="اكتب تعليقاً...">
+                            <button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="addComment('${key}')">إرسال</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        window.createPost = async function() {
+            const text = document.getElementById('postText').value.trim();
+            const file = document.getElementById('postImageInput').files[0];
+            const btn = document.getElementById('publishBtn');
+
+            if (!text && !file) return showToast('لا يمكن نشر منشور فارغ!');
+
+            btn.disabled = true;
+            btn.innerText = "جاري النشر...";
+
+            let imageBase64 = '';
+            if (file) {
+                try {
+                    imageBase64 = await readFileAsBase64(file);
+                } catch(e) {
+                    showToast('تعذر تحميل الصورة.');
+                }
+            }
+
+            push(ref(db, 'posts'), {
+                userId: currentUser.id,
+                userName: currentUser.name,
+                userAvatar: currentUser.avatar,
+                text: text,
+                image: imageBase64,
+                timestamp: Date.now()
+            });
+
+            document.getElementById('postText').value = '';
+            document.getElementById('postImageInput').value = '';
+            btn.disabled = false;
+            btn.innerText = "نشر الآن";
+            closeModal('createPostModal');
+            showToast('تم النشر فوراً للجميع!');
+        };
+
+        window.likePost = function(key) {
+            const likesRef = ref(db, `posts/${key}/likes/${currentUser.id}`);
+            const currentLikes = postsData[key].likes || {};
+            if (currentLikes[currentUser.id]) {
+                remove(likesRef);
+            } else {
+                update(ref(db, `posts/${key}/likes`), { [currentUser.id]: true });
+            }
+        };
+
+        window.addComment = function(key) {
+            const input = document.getElementById(`input-${key}`);
+            const text = input.value.trim();
+            if (!text) return showToast('اكتب تعليقاً أولاً!');
+
+            push(ref(db, `posts/${key}/comments`), {
+                userId: currentUser.id,
+                userName: currentUser.name,
+                text: text,
+                timestamp: Date.now()
+            });
+            input.value = '';
+        };
+
+        window.deletePost = function(key) {
+            if (confirm('هل تريد حذف هذا المنشور؟')) {
+                remove(ref(db, `posts/${key}`));
+                showToast('تم حذف المنشور.');
+            }
+        };
+    </script>
+
+    <script>
+        function openCreatePostModal() { document.getElementById('createPostModal').style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function toggleComments(key) {
+            const el = document.getElementById('comments-' + key);
+            el.style.display = el.style.display === 'block' ? 'none' : 'block';
+        }
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
+        }
+        function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+        function timeAgo(timestamp) {
+            const diff = Math.floor((Date.now() - timestamp) / 1000);
+            if (diff < 60) return 'الآن';
+            if (diff < 3600) return `${Math.floor(diff/60)} دقيقة`;
+            if (diff < 86400) return `${Math.floor(diff/3600)} ساعة`;
+            return `${Math.floor(diff/86400)} يوم`;
+        }
+        function escapeHtml(text) {
+            return text ? text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : '';
+        }
+    </script>
 </head>
 <body>
 
 <div class="mobile-container">
-    <!-- Auth Screen -->
-    <div class="auth-screen" id="authScreen">
-        <div class="auth-header">
-            <h1>SocialX</h1>
-            <p id="authSub">انضم إلى مجتمعك الرقمي بلمسة واحدة</p>
-        </div>
-        <form id="authForm" onsubmit="handleAuth(event)">
-            <div class="form-group" id="fullNameGroup">
-                <label>الاسم الكامل</label>
-                <input type="text" class="form-control" id="regFullName">
-            </div>
-            <div class="form-group" id="usernameGroup">
-                <label>اسم المستخدم (Username)</label>
-                <input type="text" class="form-control" id="regUsername">
-            </div>
-            <div class="form-group">
-                <label>البريد الإلكتروني</label>
-                <input type="email" class="form-control" id="authEmail" required>
-            </div>
-            <div class="form-group">
-                <label>كلمة المرور</label>
-                <input type="password" class="form-control" id="authPass" required>
-            </div>
-            <div class="form-group" id="confirmPassGroup">
-                <label>تأكيد كلمة المرور</label>
-                <input type="password" class="form-control" id="regConfirmPass">
-            </div>
-            <div class="form-group" id="avatarGroup">
-                <label>الصورة الشخصية (اختياري)</label>
-                <input type="file" class="form-control" id="regAvatar" accept="image/*">
-            </div>
-            <button type="submit" class="btn" id="authSubmitBtn">إنشاء حساب جديد</button>
-            <button type="button" class="btn btn-secondary" id="authToggleBtn" onclick="toggleAuthMode()">لديك حساب بالفعل؟ تسجيل الدخول</button>
-        </form>
-    </div>
-
-    <!-- App Header -->
     <header>
         <a href="#" class="logo">SocialX</a>
         <div class="header-icons">
             <button class="icon-btn" onclick="toggleDarkMode()">🌙</button>
-            <button class="icon-btn" onclick="switchPage('notifications')">
-                🔔 <span class="badge" id="notifBadge" style="display:none;">0</span>
-            </button>
         </div>
     </header>
 
-    <!-- Main View Content -->
     <div class="view-content">
-        <!-- Home Feed Page -->
-        <div class="page-view active" id="page-home">
+        <div class="page-view active">
             <div class="post-trigger" onclick="openCreatePostModal()">
                 <img src="" class="avatar my-avatar">
                 <div class="trigger-input">بم تفكر اليوم؟</div>
             </div>
             <div id="feedContainer"></div>
         </div>
-
-        <!-- Search Page -->
-        <div class="page-view" id="page-search">
-            <div class="form-group">
-                <input type="text" class="form-control" id="searchInput" placeholder="ابحث عن مستخدم بالاسم أو الـ Username..." oninput="searchUsers()">
-            </div>
-            <div id="searchResults"></div>
-        </div>
-
-        <!-- Notifications Page -->
-        <div class="page-view" id="page-notifications">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <h3>الإشعارات</h3>
-                <button class="btn btn-secondary" style="width: auto; padding: 4px 10px; font-size: 12px;" onclick="markAllNotificationsRead()">تحديد الكل كقراءة</button>
-            </div>
-            <div id="notificationsContainer"></div>
-        </div>
-
-        <!-- Profile Page -->
-        <div class="page-view" id="page-profile">
-            <div class="profile-header">
-                <img src="" class="avatar" id="profilePageAvatar">
-                <h2 id="profilePageName">--</h2>
-                <div style="font-size: 12px; color: var(--text-sub);" id="profilePageUsername">@--</div>
-                <p style="font-size: 13px; margin-top: 8px;" id="profilePageBio">لا يوجد نبذة شخصية.</p>
-                <div class="profile-stats">
-                    <div class="stat-box"><span id="statPosts">0</span> منشورات</div>
-                    <div class="stat-box"><span id="statFollowers">0</span> متابِعون</div>
-                    <div class="stat-box"><span id="statFollowing">0</span> متابَعون</div>
-                </div>
-                <div id="profileActionArea">
-                    <button class="btn" onclick="openEditProfileModal()">تعديل الملف الشخصي</button>
-                </div>
-            </div>
-            <h3>المنشورات</h3>
-            <div id="profilePostsContainer" style="margin-top: 10px;"></div>
-        </div>
     </div>
-
-    <!-- Bottom Navigation -->
-    <nav class="bottom-nav">
-        <button class="nav-item active" onclick="switchPage('home')"><span>🏠</span>الرئيسية</button>
-        <button class="nav-item" onclick="switchPage('search')"><span>🔍</span>بحث</button>
-        <button class="nav-item" onclick="openCreatePostModal()"><span>➕</span>نشر</button>
-        <button class="nav-item" onclick="switchPage('notifications')"><span>🔔</span>إشعارات</button>
-        <button class="nav-item" onclick="switchPage('profile')"><span>👤</span>حسابي</button>
-    </nav>
 </div>
 
 <!-- Modal Create Post -->
@@ -230,489 +321,15 @@
             <button class="icon-btn" onclick="closeModal('createPostModal')">✕</button>
         </div>
         <textarea class="form-control" id="postText" rows="4" placeholder="اكتب شيئاً هنا..."></textarea>
-        <div class="form-group" style="margin-top: 10px;">
-            <label>إضافة صورة</label>
-            <input type="file" class="form-control" id="postImageInput" accept="image/*">
+        <div style="margin-top: 10px;">
+            <label style="font-size:12px; color:var(--text-sub);">إضافة صورة (اختياري)</label>
+            <input type="file" class="form-control" id="postImageInput" accept="image/*" style="margin-top:5px;">
         </div>
-        <button class="btn" style="margin-top: 10px;" onclick="createPost()">نشر الآن</button>
-    </div>
-</div>
-
-<!-- Modal Edit Profile -->
-<div class="modal" id="editProfileModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>تعديل الملف الشخصي</h3>
-            <button class="icon-btn" onclick="closeModal('editProfileModal')">✕</button>
-        </div>
-        <div class="form-group">
-            <label>الاسم الكامل</label>
-            <input type="text" class="form-control" id="editFullName">
-        </div>
-        <div class="form-group">
-            <label>النبذة الشخصية (Bio)</label>
-            <textarea class="form-control" id="editBio" rows="2"></textarea>
-        </div>
-        <div class="form-group">
-            <label>تغيير الصورة الشخصية</label>
-            <input type="file" class="form-control" id="editAvatarInput" accept="image/*">
-        </div>
-        <button class="btn" style="margin-top: 10px;" onclick="saveProfile()">حفظ التغييرات</button>
-        <button class="btn btn-secondary" style="margin-top: 8px; color: var(--like-color); border-color: var(--like-color);" onclick="logoutUser()">تسجيل الخروج</button>
+        <button class="btn" id="publishBtn" style="margin-top: 15px;" onclick="createPost()">نشر الآن</button>
     </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<script>
-// Global State
-let users = [];
-let currentUser = null;
-let posts = [];
-let notifications = [];
-let isAuthLoginMode = false;
-let activeProfileUser = null;
-
-// Initialization
-document.addEventListener("DOMContentLoaded", () => {
-    loadData();
-    if (!users || users.length === 0) seedDemoData();
-    checkAuthStatus();
-    initPWA();
-});
-
-function initPWA() {
-    if ('serviceWorker' in navigator) {
-        const swCode = `
-            self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
-            self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
-            self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
-        `;
-        const blob = new Blob([swCode], {type: 'application/javascript'});
-        navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
-    }
-}
-
-function seedDemoData() {
-    users = [
-        { id: 'u1', name: 'أحمد علي', username: 'ahmed', email: 'ahmed@test.com', pass: '123456', bio: 'مطور تطبيقات وشغوف بالتقنية 🚀', avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=ahmed', followers: [], following: [] },
-        { id: 'u2', name: 'محمد محمود', username: 'mohamed', email: 'm@test.com', pass: '123456', bio: 'مصمم جرافيك ومحب للتصوير 📸', avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=mohamed', followers: [], following: [] }
-    ];
-    posts = [
-        { id: 'p1', userId: 'u1', text: 'أهلاً بكم في تطبيق SocialX! 🎉 أول شبكة اجتماعية متكاملة تعمل بدون خادم.', image: '', likes: ['u2'], comments: [{ id: 'c1', userId: 'u2', text: 'تطبيق ممتاز بالتوفيق!' }], timestamp: Date.now() - 3600000 }
-    ];
-    notifications = [
-        { id: 'n1', userId: 'u1', text: '❤️ محمد محمود أعجب بمنشورك.', read: false, timestamp: Date.now() }
-    ];
-    saveData();
-}
-
-function saveData() {
-    localStorage.setItem('sx_users', JSON.stringify(users));
-    localStorage.setItem('sx_currentUser', JSON.stringify(currentUser));
-    localStorage.setItem('sx_posts', JSON.stringify(posts));
-    localStorage.setItem('sx_notifications', JSON.stringify(notifications));
-}
-
-function loadData() {
-    users = JSON.parse(localStorage.getItem('sx_users')) || [];
-    currentUser = JSON.parse(localStorage.getItem('sx_currentUser')) || null;
-    posts = JSON.parse(localStorage.getItem('sx_posts')) || [];
-    notifications = JSON.parse(localStorage.getItem('sx_notifications')) || [];
-    if (localStorage.getItem('sx_darkmode') === 'true') document.body.classList.add('dark-mode');
-}
-
-function checkAuthStatus() {
-    if (currentUser) {
-        document.getElementById('authScreen').style.display = 'none';
-        updateMyAvatars();
-        loadFeed();
-        updateNotificationBadge();
-    } else {
-        document.getElementById('authScreen').style.display = 'flex';
-    }
-}
-
-function toggleAuthMode() {
-    isAuthLoginMode = !isAuthLoginMode;
-    document.getElementById('fullNameGroup').style.display = isAuthLoginMode ? 'none' : 'block';
-    document.getElementById('usernameGroup').style.display = isAuthLoginMode ? 'none' : 'block';
-    document.getElementById('confirmPassGroup').style.display = isAuthLoginMode ? 'none' : 'block';
-    document.getElementById('avatarGroup').style.display = isAuthLoginMode ? 'none' : 'block';
-    document.getElementById('authSubmitBtn').innerText = isAuthLoginMode ? 'تسجيل الدخول' : 'إنشاء حساب جديد';
-    document.getElementById('authToggleBtn').innerText = isAuthLoginMode ? 'ليس لديك حساب؟ إنشاء حساب جديد' : 'لديك حساب بالفعل؟ تسجيل الدخول';
-}
-
-async function handleAuth(e) {
-    e.preventDefault();
-    const email = document.getElementById('authEmail').value.trim();
-    const pass = document.getElementById('authPass').value.trim();
-
-    if (isAuthLoginMode) {
-        const u = users.find(x => x.email === email && x.pass === pass);
-        if (!u) return showToast('بيانات الدخول غير صحيحة!');
-        currentUser = u;
-        saveData();
-        checkAuthStatus();
-        showToast('تم تسجيل الدخول بنجاح!');
-    } else {
-        const name = document.getElementById('regFullName').value.trim();
-        const username = document.getElementById('regUsername').value.trim().toLowerCase();
-        const confirmPass = document.getElementById('regConfirmPass').value.trim();
-
-        if (!name || !username || !email || !pass) return showToast('يرجى ملء جميع الحقول المطلوبة!');
-        if (pass !== confirmPass) return showToast('كلمتا المرور غير متطابقتين!');
-        if (users.some(x => x.username === username)) return showToast('اسم المستخدم مأخوذ بالفعل!');
-
-        let avatarUrl = 'https://api.dicebear.com/7.x/bottts/svg?seed=' + username;
-        const file = document.getElementById('regAvatar').files[0];
-        if (file) avatarUrl = await readFileAsBase64(file);
-
-        const newUser = { id: 'u_' + Date.now(), name, username, email, pass, bio: '', avatar: avatarUrl, followers: [], following: [] };
-        users.push(newUser);
-        currentUser = newUser;
-        saveData();
-        checkAuthStatus();
-        showToast('تم إنشاء الحساب بنجاح!');
-    }
-}
-
-function logoutUser() {
-    currentUser = null;
-    saveData();
-    closeModal('editProfileModal');
-    checkAuthStatus();
-    showToast('تم تسجيل الخروج.');
-}
-
-function updateMyAvatars() {
-    document.querySelectorAll('.my-avatar').forEach(img => img.src = currentUser.avatar);
-}
-
-function switchPage(page) {
-    document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('page-' + page).classList.add('active');
-
-    const index = ['home', 'search', '', 'notifications', 'profile'].indexOf(page);
-    if (index !== -1) document.querySelectorAll('.nav-item')[index].classList.add('active');
-
-    if (page === 'home') loadFeed();
-    if (page === 'notifications') renderNotifications();
-    if (page === 'profile') renderProfile(currentUser);
-}
-
-function loadFeed() {
-    const container = document.getElementById('feedContainer');
-    container.innerHTML = '';
-    const sortedPosts = [...posts].sort((a,b) => b.timestamp - a.timestamp);
-    sortedPosts.forEach(p => container.appendChild(renderPost(p)));
-}
-
-function renderPost(post) {
-    const author = users.find(u => u.id === post.userId) || { name: 'مستخدم محذوف', username: 'deleted', avatar: '' };
-    const isLiked = post.likes.includes(currentUser.id);
-    const isOwner = post.userId === currentUser.id;
-
-    const div = document.createElement('div');
-    div.className = 'post-card';
-    div.innerHTML = `
-        <div class="post-header">
-            <div class="post-author" onclick="openUserProfile('${author.id}')" style="cursor:pointer">
-                <img src="${author.avatar}" class="avatar">
-                <div>
-                    <div class="author-name">${author.name}</div>
-                    <div class="author-username">@${author.username} • ${timeAgo(post.timestamp)}</div>
-                </div>
-            </div>
-            ${isOwner ? `<button class="icon-btn" onclick="deletePost('${post.id}')">🗑️</button>` : ''}
-        </div>
-        <div class="post-text">${escapeHtml(post.text)}</div>
-        ${post.image ? `<img src="${post.image}" class="post-img">` : ''}
-        <div class="post-stats">
-            <span>❤️ ${post.likes.length} إعجاب</span>
-            <span>💬 ${post.comments.length} تعليق</span>
-        </div>
-        <div class="post-actions">
-            <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="likePost('${post.id}')">❤️ ${isLiked ? 'أعجبني' : 'إعجاب'}</button>
-            <button class="action-btn" onclick="toggleComments('${post.id}')">💬 تعليق</button>
-        </div>
-        <div class="comments-section" id="comments-${post.id}">
-            <div id="commentList-${post.id}">
-                ${post.comments.map(c => {
-                    const cUser = users.find(u => u.id === c.userId) || { name: 'مستخدم' };
-                    return `<div class="comment-item">
-                        <div class="comment-body">
-                            <div class="comment-user">${cUser.name}</div>
-                            <div>${escapeHtml(c.text)}</div>
-                        </div>
-                    </div>`;
-                }).join('')}
-            </div>
-            <div class="comment-input-box">
-                <input type="text" id="input-${post.id}" placeholder="اكتب تعليقاً...">
-                <button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="addComment('${post.id}')">إرسال</button>
-            </div>
-        </div>
-    `;
-    return div;
-}
-
-function openCreatePostModal() {
-    document.getElementById('createPostModal').style.display = 'flex';
-}
-
-function closeModal(id) {
-    document.getElementById(id).style.display = 'none';
-}
-
-async function createPost() {
-    const text = document.getElementById('postText').value.trim();
-    const file = document.getElementById('postImageInput').files[0];
-    if (!text && !file) return showToast('لا يمكن نشر منشور فارغ!');
-
-    let image = '';
-    if (file) image = await readFileAsBase64(file);
-
-    const newPost = {
-        id: 'p_' + Date.now(),
-        userId: currentUser.id,
-        text,
-        image,
-        likes: [],
-        comments: [],
-        timestamp: Date.now()
-    };
-
-    posts.unshift(newPost);
-    saveData();
-    closeModal('createPostModal');
-    document.getElementById('postText').value = '';
-    document.getElementById('postImageInput').value = '';
-    loadFeed();
-    showToast('تم نشر المنشور بنجاح!');
-}
-
-function likePost(postId) {
-    const post = posts.find(p => p.id === postId);
-    if (!post) return;
-    const index = post.likes.indexOf(currentUser.id);
-
-    if (index === -1) {
-        post.likes.push(currentUser.id);
-        if (post.userId !== currentUser.id) {
-            notifications.push({ id: 'n_' + Date.now(), userId: post.userId, text: `❤️ ${currentUser.name} أعجب بمنشورك.`, read: false, timestamp: Date.now() });
-        }
-    } else {
-        post.likes.splice(index, 1);
-    }
-    saveData();
-    loadFeed();
-}
-
-function toggleComments(postId) {
-    const el = document.getElementById('comments-' + postId);
-    el.style.display = el.style.display === 'block' ? 'none' : 'block';
-}
-
-function addComment(postId) {
-    const input = document.getElementById('input-' + postId);
-    const text = input.value.trim();
-    if (!text) return showToast('اكتب تعليقاً أولاً!');
-
-    const post = posts.find(p => p.id === postId);
-    post.comments.push({ id: 'c_' + Date.now(), userId: currentUser.id, text });
-
-    if (post.userId !== currentUser.id) {
-        notifications.push({ id: 'n_' + Date.now(), userId: post.userId, text: `💬 ${currentUser.name} علّق على منشورك.`, read: false, timestamp: Date.now() });
-    }
-
-    saveData();
-    loadFeed();
-    showToast('تمت إضافة التعليق!');
-}
-
-function deletePost(postId) {
-    if (!confirm('هل أنت تأكد من حذف هذا المنشور؟')) return;
-    posts = posts.filter(p => p.id !== postId);
-    saveData();
-    loadFeed();
-    showToast('تم حذف المنشور.');
-}
-
-function renderProfile(user) {
-    activeProfileUser = user;
-    document.getElementById('profilePageAvatar').src = user.avatar;
-    document.getElementById('profilePageName').innerText = user.name;
-    document.getElementById('profilePageUsername').innerText = '@' + user.username;
-    document.getElementById('profilePageBio').innerText = user.bio || 'لا يوجد نبذة شخصية.';
-
-    const myPosts = posts.filter(p => p.userId === user.id);
-    document.getElementById('statPosts').innerText = myPosts.length;
-    document.getElementById('statFollowers').innerText = user.followers ? user.followers.length : 0;
-    document.getElementById('statFollowing').innerText = user.following ? user.following.length : 0;
-
-    const area = document.getElementById('profileActionArea');
-    if (user.id === currentUser.id) {
-        area.innerHTML = `<button class="btn" onclick="openEditProfileModal()">تعديل الملف الشخصي</button>`;
-    } else {
-        const isFollowing = currentUser.following && currentUser.following.includes(user.id);
-        area.innerHTML = `<button class="btn ${isFollowing ? 'btn-secondary' : ''}" onclick="toggleFollow('${user.id}')">${isFollowing ? 'إلغاء المتابعة' : 'متابعة'}</button>`;
-    }
-
-    const container = document.getElementById('profilePostsContainer');
-    container.innerHTML = '';
-    myPosts.forEach(p => container.appendChild(renderPost(p)));
-}
-
-function openUserProfile(userId) {
-    const u = users.find(x => x.id === userId);
-    if (u) {
-        renderProfile(u);
-        switchPage('profile');
-    }
-}
-
-function toggleFollow(targetId) {
-    if (!currentUser.following) currentUser.following = [];
-    const target = users.find(u => u.id === targetId);
-    if (!target.followers) target.followers = [];
-
-    const index = currentUser.following.indexOf(targetId);
-    if (index === -1) {
-        currentUser.following.push(targetId);
-        target.followers.push(currentUser.id);
-        notifications.push({ id: 'n_' + Date.now(), userId: targetId, text: `👤 ${currentUser.name} بدأ بمتابعتك.`, read: false, timestamp: Date.now() });
-        showToast('بدأت بمتابعة ' + target.name);
-    } else {
-        currentUser.following.splice(index, 1);
-        const fIndex = target.followers.indexOf(currentUser.id);
-        if (fIndex !== -1) target.followers.splice(fIndex, 1);
-        showToast('تم إلغاء المتابعة.');
-    }
-    saveData();
-    renderProfile(target);
-}
-
-function openEditProfileModal() {
-    document.getElementById('editFullName').value = currentUser.name;
-    document.getElementById('editBio').value = currentUser.bio || '';
-    document.getElementById('editProfileModal').style.display = 'flex';
-}
-
-async function saveProfile() {
-    currentUser.name = document.getElementById('editFullName').value.trim();
-    currentUser.bio = document.getElementById('editBio').value.trim();
-    
-    const file = document.getElementById('editAvatarInput').files[0];
-    if (file) currentUser.avatar = await readFileAsBase64(file);
-
-    const index = users.findIndex(u => u.id === currentUser.id);
-    if (index !== -1) users[index] = currentUser;
-
-    saveData();
-    closeModal('editProfileModal');
-    updateMyAvatars();
-    renderProfile(currentUser);
-    showToast('تم حفظ البيانات بنجاح!');
-}
-
-function searchUsers() {
-    const query = document.getElementById('searchInput').value.toLowerCase().trim();
-    const container = document.getElementById('searchResults');
-    container.innerHTML = '';
-    if (!query) return;
-
-    const filtered = users.filter(u => u.name.toLowerCase().includes(query) || u.username.toLowerCase().includes(query));
-    filtered.forEach(u => {
-        const div = document.createElement('div');
-        div.className = 'post-card';
-        div.style.display = 'flex';
-        div.style.justifyContent = 'space-between';
-        div.style.alignItems = 'center';
-        div.innerHTML = `
-            <div class="post-author">
-                <img src="${u.avatar}" class="avatar">
-                <div>
-                    <div class="author-name">${u.name}</div>
-                    <div class="author-username">@${u.username}</div>
-                </div>
-            </div>
-            <button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openUserProfile('${u.id}')">عرض الملف</button>
-        `;
-        container.appendChild(div);
-    });
-}
-
-function renderNotifications() {
-    const container = document.getElementById('notificationsContainer');
-    container.innerHTML = '';
-    const myNotifs = notifications.filter(n => n.userId === currentUser.id).sort((a,b) => b.timestamp - a.timestamp);
-
-    if (myNotifs.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top:20px;">لا توجد إشعارات حالياً.</p>';
-        return;
-    }
-
-    myNotifs.forEach(n => {
-        const div = document.createElement('div');
-        div.className = `notif-item ${!n.read ? 'unread' : ''}`;
-        div.innerHTML = `<div>${n.text}</div><div style="font-size:10px; color:var(--text-sub); margin-right:auto;">${timeAgo(n.timestamp)}</div>`;
-        container.appendChild(div);
-    });
-}
-
-function markAllNotificationsRead() {
-    notifications.forEach(n => { if (n.userId === currentUser.id) n.read = true; });
-    saveData();
-    renderNotifications();
-    updateNotificationBadge();
-    showToast('تم تحديد جميع الإشعارات كقراءة.');
-}
-
-function updateNotificationBadge() {
-    const unread = notifications.filter(n => n.userId === currentUser.id && !n.read).length;
-    const badge = document.getElementById('notifBadge');
-    if (unread > 0) {
-        badge.innerText = unread;
-        badge.style.display = 'block';
-    } else {
-        badge.style.display = 'none';
-    }
-}
-
-function toggleDarkMode() {
-    document.body.classList.toggle('dark-mode');
-    localStorage.setItem('sx_darkmode', document.body.classList.contains('dark-mode'));
-}
-
-function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.innerText = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-function readFileAsBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-}
-
-function timeAgo(timestamp) {
-    const diff = Math.floor((Date.now() - timestamp) / 1000);
-    if (diff < 60) return 'الآن';
-    if (diff < 3600) return `${Math.floor(diff/60)} دقيقة`;
-    if (diff < 86400) return `${Math.floor(diff/3600)} ساعة`;
-    return `${Math.floor(diff/86400)} يوم`;
-}
-
-function escapeHtml(text) {
-    return text ? text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : '';
-}
-</script>
 </body>
 </html>
