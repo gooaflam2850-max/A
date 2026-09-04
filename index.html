@@ -447,3 +447,54 @@
 
 </body>
 </html>
+loginWithGoogle()">تسجيل الدخول مع Google 🚀</button>
+</div>
+
+<div class="app-container" id="appContainer">
+    <header>
+        <span>تواصل معنا</span>
+        <div class="header-actions">
+            <span id="displayUserName" style="font-size: 12px;"></span>
+            <button class="icon-btn" onclick="logoutApp()">خروج</button>
+        </div>
+    </header>
+
+    <div class="nav-tabs">
+        <div class="nav-tab active" id="feedTabBtn" onclick="switchTab('feed')">الرئيسية 🏠</div>
+        <div class="nav-tab" id="chatTabBtn" onclick="switchTab('chat')">الرسائل 💬</div>
+        <div class="nav-tab" id="profileTabBtn" onclick="switchTab('profile')">الملف الشخصي 👤</div>
+    </div>
+
+    <div class="feed" id="feedView">
+        <div class="stories-container" id="storiesContainer"></div>
+
+        <div class="create-post">
+            <textarea id="postText" placeholder="بم تفكر اليوم؟"></textarea>
+            <label style="font-size: 11px; color: var(--sub-text);">اختر صورة أو فيديو من الجهاز:</label>
+            <input type="file" id="postMediaFile" accept="image/*,video/*" class="media-input">
+            <button class="post-btn" id="uploadBtn" onclick="createPostWithFile()">نشر للجميع</button>
+        </div>
+
+        <div id="postsContainer"></div>
+    </div>
+
+    <div class="chat-screen" id="chatView" style="display: none;">
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input-area" style="display: flex; gap: 5px; padding: 10px;">
+                <input type="text" id="chatInput" class="media-input" placeholder="اكتب رسالتك...">
+                <button class="post-btn" onclick="sendMessage()">إرسال</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-screen" id="profileView" style="display: none;">
+        <div class="profile-card">
+            <img id="profileAvatarImg" class="profile-avatar" src="" alt="Avatar">
+            <h2 id="profileDisplayName">اسم المستخدم</h2>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
