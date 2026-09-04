@@ -35,7 +35,7 @@ input,textarea,.select{width:100%;border:1px solid var(--border);background:var(
 .modal{position:fixed;inset:0;background:#0009;display:none;align-items:flex-end;z-index:100}.modal.show{display:flex}.modalbox{width:100%;max-width:480px;margin:auto 0 0;background:var(--card);border-radius:18px 18px 0 0;padding:16px;max-height:90vh;overflow:auto}.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.close{border:0;background:var(--input);color:var(--text);border-radius:50%;width:34px;height:34px}
 .auth{height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}.authbox{width:100%;max-width:400px;background:var(--card);padding:24px;border-radius:18px;box-shadow:var(--shadow)}.authbox h1{color:var(--primary);text-align:center;margin-bottom:5px}.authbox p{text-align:center;color:var(--sub);margin-bottom:18px}.switch{text-align:center;color:var(--primary);margin-top:14px;cursor:pointer}.error{color:var(--danger);font-size:13px;text-align:center;min-height:18px}
 .toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 17px;border-radius:22px;z-index:200;opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1}
-</style>
+.v21-badge{display:inline-flex;align-items:center;margin-inline-start:6px;padding:2px 6px;border-radius:8px;background:var(--primary);color:#fff;font-size:9px;font-weight:800;vertical-align:middle}button:disabled{opacity:.6;cursor:not-allowed}</style>
 </head>
 <body>
 <div id="authScreen" class="auth">
@@ -103,7 +103,7 @@ input,textarea,.select{width:100%;border:1px solid var(--border);background:var(
 <button id="navHome" class="active" onclick="go('homePage')"><b>🏠</b>الرئيسية</button>
 <button id="navSearch" onclick="go('searchPage');renderUsers()"><b>🔎</b>اكتشاف</button>
 <button onclick="openModal('postModal')"><b>➕</b>نشر</button>
-<button id="navNotif" onclick="go('notificationsPage');renderNotifications()"><b>🔔</b>إشعارات</button>
+<button id="navNotif" onclick="go('notificationsPage');renderNotifications()"><b>🔔</b>إشعارات<span id="notifBadge" style="display:none;position:absolute;top:2px;right:8px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:#e53935;color:#fff;font-size:10px;align-items:center;justify-content:center;font-weight:700"></span></button>
 <button id="navProfile" onclick="go('profilePage');renderProfile()"><b>👤</b>حسابي</button>
 </div>
 </div>
@@ -181,9 +181,20 @@ function renderMyPosts(){$('myPosts').innerHTML=Object.entries(posts).filter(([k
 
 window.createPost=async()=>{const text=$('postText').value.trim(),file=$('postFile').files[0],b=$('publishBtn');if(!text&&!file)return toast('اكتب شيئاً أو اختر ملفاً');b.disabled=true;b.textContent='جاري النشر...';try{let url='',type='';if(file){if(file.size>50*1024*1024)throw Error('حجم الملف أكبر من 50MB');type=file.type.startsWith('video/')?'video':'image';url=await upload(file)}await push(ref(db,'posts'),{userId:me.uid,userName:me.displayName||users[me.uid]?.name||'مستخدم',userAvatar:avatar(me.uid),text,mediaUrl:url,mediaType:type,timestamp:Date.now()});$('postText').value='';$('postFile').value='';closeModal('postModal');toast('تم نشر المنشور ❤️')}catch(e){toast(e.message||'فشل النشر')}finally{b.disabled=false;b.textContent='نشر الآن'}};
 window.deletePost=k=>{if(confirm('حذف المنشور؟'))remove(ref(db,'posts/'+k))};
-window.likePost=k=>{const r=ref(db,`posts/${k}/likes/${me.uid}`);posts[k]?.likes?.[me.uid]?remove(r):set(r,true)};
+window.likePost=async k=>{
+ const p=posts[k]; if(!p)return;
+ const r=ref(db,`posts/${k}/likes/${me.uid}`);
+ if(p.likes?.[me.uid]) await remove(r);
+ else {await set(r,true); await notify(p.userId,'like',`${me.displayName||'مستخدم'} أعجب بمنشورك ❤️`);}
+};
 window.toggleComments=k=>$('c_'+k).classList.toggle('hidden');
-window.comment=k=>{const i=$('ci_'+k),t=i.value.trim();if(!t)return;push(ref(db,`posts/${k}/comments`),{userId:me.uid,userName:me.displayName||users[me.uid]?.name||'مستخدم',text:t,timestamp:Date.now()});i.value=''};
+window.comment=async k=>{
+ const i=$('ci_'+k),t=i.value.trim(); if(!t)return;
+ const p=posts[k]; if(!p)return;
+ await push(ref(db,`posts/${k}/comments`),{userId:me.uid,userName:me.displayName||users[me.uid]?.name||'مستخدم',text:t,timestamp:Date.now()});
+ await notify(p.userId,'comment',`${me.displayName||'مستخدم'} علّق على منشورك 💬`);
+ i.value='';
+};
 window.sharePost=async k=>{const url=location.href+'#post-'+k;try{await navigator.clipboard.writeText(url);toast('تم نسخ رابط المنشور')}catch{toast('تم تجهيز رابط المنشور')}};
 
 window.createStory=async()=>{const file=$('storyFile').files[0];if(!file)return toast('اختر صورة أو فيديو');try{const type=file.type.startsWith('video/')?'video':'image',url=await upload(file);await push(ref(db,'stories'),{userId:me.uid,userName:me.displayName||users[me.uid]?.name||'مستخدم',mediaUrl:url,mediaType:type,timestamp:Date.now()});$('storyFile').value='';closeModal('storyModal');toast('تم نشر القصة')}catch{toast('فشل رفع القصة')}};
@@ -194,15 +205,43 @@ window.sendFriend=async id=>{await set(ref(db,'friendships/'+friendKey(me.uid,id
 window.acceptFriend=async id=>{await update(ref(db,'friendships/'+friendKey(me.uid,id)),{status:'accepted'});await notify(id,'friend',`${me.displayName||'مستخدم'} قبل طلب صداقتك 🎉`);toast('تم قبول الطلب')};
 window.removeFriend=id=>remove(ref(db,'friendships/'+friendKey(me.uid,id)));
 
-function renderNotifications(){const a=Object.values(notes).sort((x,y)=>y.timestamp-x.timestamp);$('notifications').innerHTML=a.map(n=>`<div class="list"><div><b>${esc(n.text)}</b><br><small style="color:var(--sub)">${ago(n.timestamp)}</small></div></div>`).join('')||'<p style="color:var(--sub);padding:10px">لا توجد إشعارات.</p>'}
+
+function unreadCount(){
+  return Object.values(notes||{}).filter(n=>n && n.read===false).length;
+}
+async function markAllNotificationsRead(){
+  if(!me)return;
+  const updates={};
+  Object.entries(notes||{}).forEach(([id,n])=>{
+    if(n && n.read===false) updates[id+'/read']=true;
+  });
+  if(Object.keys(updates).length) await update(ref(db,'notifications/'+me.uid),updates);
+}
+function notificationText(n){
+  return n.type==='like'?'❤️ '+n.text:n.type==='comment'?'💬 '+n.text:n.type==='friend'?'👥 '+n.text:(n.text||'إشعار جديد');
+}
+function renderNotifications(){
+ const a=Object.entries(notes||{}).sort((a,b)=>(b[1].timestamp||0)-(a[1].timestamp||0));
+ const badge=$('notifBadge'), unread=unreadCount();
+ if(badge){badge.textContent=unread>99?'99+':String(unread);badge.style.display=unread?'flex':'none';}
+ $('notifications').innerHTML=a.length?a.map(([id,n])=>`<div class="list" style="${n.read===false?'background:var(--input);':''}"><div><b>${esc(notificationText(n))}</b><br><small style="color:var(--sub)">${ago(n.timestamp)}</small></div></div>`).join(''):'<p style="color:var(--sub);padding:10px">لا توجد إشعارات.</p>';
+}
 window.viewUser=id=>{const u=users[id];if(!u)return;currentOther=id;$('otherAvatar').src=avatar(id);$('otherName').textContent=u.name;const s=status(id);$('friendAction').innerHTML=s==='none'?`<button class="btn" onclick="sendFriend('${id}')">إضافة صديق ➕</button>`:s==='sent'?`<button class="btn secondary" onclick="removeFriend('${id}')">إلغاء الطلب</button>`:s==='received'?`<button class="btn" onclick="acceptFriend('${id}')">قبول الطلب ✔️</button>`:`<button class="btn secondary" onclick="removeFriend('${id}')">إزالة الصداقة</button>`;$('otherPosts').innerHTML=Object.entries(posts).filter(([k,p])=>p.userId===id).sort((a,b)=>b[1].timestamp-a[1].timestamp).map(([k,p])=>postHTML(k,p)).join('')||'<div class="card">لا توجد منشورات.</div>';go('userPage')};
 let currentOther='';
 window.saveName=async()=>{const n=$('newName').value.trim();if(!n)return toast('اكتب الاسم');await updateProfile(me,{displayName:n});await update(ref(db,'users/'+me.uid),{name:n});toast('تم تحديث الاسم')};
 window.uploadAvatar=async()=>{const f=$('avatarInput').files[0];if(!f)return toast('اختر صورة');try{const u=await upload(f);await updateProfile(me,{photoURL:u});await update(ref(db,'users/'+me.uid),{avatar:u});toast('تم تغيير الصورة')}catch{toast('فشل رفع الصورة')}};
 function renderProfile(){if(!me)return;const u=users[me.uid];$('profileAvatar').src=u?.avatar||me.photoURL||avatar(me.uid);$('myAvatarTop').src=u?.avatar||me.photoURL||avatar(me.uid);$('profileName').textContent=u?.name||me.displayName||'مستخدم';$('newName').value=u?.name||me.displayName||''}
-window.go=id=>{document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));if(id==='homePage')$('navHome').classList.add('active');if(id==='searchPage')$('navSearch').classList.add('active');if(id==='notificationsPage')$('navNotif').classList.add('active');if(id==='profilePage')$('navProfile').classList.add('active')};
+window.go=id=>{
+ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+ $(id).classList.add('active');
+ document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
+ if(id==='homePage')$('navHome').classList.add('active');
+ if(id==='searchPage')$('navSearch').classList.add('active');
+ if(id==='notificationsPage'){ $('navNotif').classList.add('active'); markAllNotificationsRead().catch(()=>{}); }
+ if(id==='profilePage')$('navProfile').classList.add('active');
+};
 window.openModal=id=>$(id).classList.add('show');window.closeModal=id=>$(id).classList.remove('show');
 window.toggleDark=()=>{document.body.classList.toggle('dark');localStorage.setItem('sx_dark',document.body.classList.contains('dark')?'1':'0')};if(localStorage.getItem('sx_dark')==='1')document.body.classList.add('dark');
 </script>
 </body>
-    </html>
+  </html>
