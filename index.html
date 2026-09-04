@@ -238,7 +238,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD3dC6ucOkNeo65pHx4JzPDwQ_jgciBu6Q",
@@ -252,9 +251,8 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const storage = getStorage(app);
 
-        // إنشاء زائر تلقائي بدون تسجيل دخول
+        // إنشاء زائر تلقائي
         const randomId = Math.floor(1000 + Math.random() * 9000);
         const currentUser = {
             displayName: "مستخدم_" + randomId,
@@ -282,18 +280,28 @@
             if (!content && !file) return;
 
             btn.disabled = true;
-            btn.innerText = "جاري الرفع والنشر...";
+            btn.innerText = "جاري النشر...";
 
             let imageUrl = "";
-            let videoUrl = "";
 
             if (file) {
-                const fRef = storageRef(storage, 'uploads/' + Date.now() + '_' + file.name);
-                await uploadBytes(fRef, file);
-                const url = await getDownloadURL(fRef);
-
-                if (file.type.startsWith('image/')) imageUrl = url;
-                else if (file.type.startsWith('video/')) videoUrl = url;
+                btn.innerText = "جاري رفع الصورة...";
+                try {
+                    const formData = new FormData();
+                    formData.append("image", file);
+                    // استخدام مفتاح API مجاني للرفع المباشر
+                    const res = await fetch("https://api.imgbb.com/1/upload?key=6d25785f4f45804620a2e720de381282", {
+                        method: "POST",
+                        body: formData
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        imageUrl = data.data.url;
+                    }
+                } catch (e) {
+                    console.error("Error uploading image:", e);
+                    alert("تعذر رفع الصورة، سيتم نشر النص فقط.");
+                }
             }
 
             const postsRef = ref(db, 'posts');
@@ -302,7 +310,6 @@
                 authorAvatar: currentUser.photoURL,
                 content: content,
                 imageUrl: imageUrl,
-                videoUrl: videoUrl,
                 timestamp: Date.now()
             });
 
@@ -333,7 +340,6 @@
                             </div>
                             ${post.content ? `<div class="post-content">${post.content}</div>` : ''}
                             ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-media">` : ''}
-                            ${post.videoUrl ? `<video controls src="${post.videoUrl}" class="post-media"></video>` : ''}
                         `;
                         container.appendChild(div);
                     });
@@ -375,7 +381,7 @@
         function listenToStories() {
             onValue(ref(db, 'stories'), (snapshot) => {
                 const container = document.getElementById('storiesContainer');
-                container.innerHTML = `<div class="story-card story-add" onclick="alert('انقر لإضافة قصة')">+<br>قصة</div>`;
+                container.innerHTML = `<div class="story-card story-add" onclick="alert('خاصية إضافة القصص مفعلة للصور عبر النشر الرئيسي')">+<br>قصة</div>`;
             });
         }
 
@@ -419,59 +425,8 @@
 
         <div class="create-post">
             <textarea id="postText" placeholder="بم تفكر اليوم؟"></textarea>
-            <label style="font-size: 11px; color: var(--sub-text);">اختر صورة أو فيديو من الجهاز:</label>
-            <input type="file" id="postMediaFile" accept="image/*,video/*" class="media-input">
-            <button class="post-btn" id="uploadBtn" onclick="createPostWithFile()">نشر للجميع</button>
-        </div>
-
-        <div id="postsContainer"></div>
-    </div>
-
-    <div class="chat-screen" id="chatView" style="display: none;">
-        <div class="chat-container">
-            <div class="chat-messages" id="chatMessages"></div>
-            <div class="chat-input-area" style="display: flex; gap: 5px; padding: 10px;">
-                <input type="text" id="chatInput" class="media-input" placeholder="اكتب رسالتك...">
-                <button class="post-btn" onclick="sendMessage()">إرسال</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="profile-screen" id="profileView" style="display: none;">
-        <div class="profile-card">
-            <img id="profileAvatarImg" class="profile-avatar" src="" alt="Avatar">
-            <h2 id="profileDisplayName">اسم المستخدم</h2>
-        </div>
-    </div>
-</div>
-
-</body>
-</html>
-loginWithGoogle()">تسجيل الدخول مع Google 🚀</button>
-</div>
-
-<div class="app-container" id="appContainer">
-    <header>
-        <span>تواصل معنا</span>
-        <div class="header-actions">
-            <span id="displayUserName" style="font-size: 12px;"></span>
-            <button class="icon-btn" onclick="logoutApp()">خروج</button>
-        </div>
-    </header>
-
-    <div class="nav-tabs">
-        <div class="nav-tab active" id="feedTabBtn" onclick="switchTab('feed')">الرئيسية 🏠</div>
-        <div class="nav-tab" id="chatTabBtn" onclick="switchTab('chat')">الرسائل 💬</div>
-        <div class="nav-tab" id="profileTabBtn" onclick="switchTab('profile')">الملف الشخصي 👤</div>
-    </div>
-
-    <div class="feed" id="feedView">
-        <div class="stories-container" id="storiesContainer"></div>
-
-        <div class="create-post">
-            <textarea id="postText" placeholder="بم تفكر اليوم؟"></textarea>
-            <label style="font-size: 11px; color: var(--sub-text);">اختر صورة أو فيديو من الجهاز:</label>
-            <input type="file" id="postMediaFile" accept="image/*,video/*" class="media-input">
+            <label style="font-size: 11px; color: var(--sub-text);">اختر صورة لنشرها:</label>
+            <input type="file" id="postMediaFile" accept="image/*" class="media-input">
             <button class="post-btn" id="uploadBtn" onclick="createPostWithFile()">نشر للجميع</button>
         </div>
 
