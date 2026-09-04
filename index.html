@@ -93,9 +93,9 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // إعدادات الحساب الخاصة بك
+        // إعدادات Cloudinary الخاصة بحسابك (تم تحديث الـ Preset للجديد)
         const CLOUD_NAME = "dgzcvymc";
-        const UPLOAD_PRESET = "crt4jycq";
+        const UPLOAD_PRESET = "my_app_preset";
 
         let myUser = JSON.parse(localStorage.getItem('sx_user'));
         if (!myUser) {
@@ -235,34 +235,33 @@
             });
         }
 
-        // دالة الرفع المحدثة لاكتشاف الخطأ بالتفصيل
+        // دالة الرفع المباشرة عبر endpoint التلقائي (auto)
         function uploadToCloudinary(file) {
             return new Promise((resolve, reject) => {
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('upload_preset', UPLOAD_PRESET);
 
-                const resourceType = file.type.startsWith('video/') ? 'video' : 'image';
                 const xhr = new XMLHttpRequest();
-
-                xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`, true);
+                xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`, true);
 
                 xhr.onload = function () {
                     if (xhr.status >= 200 && xhr.status < 300) {
                         const response = JSON.parse(xhr.responseText);
                         resolve(response.secure_url);
                     } else {
+                        console.error('Cloudinary Error:', xhr.responseText);
                         try {
                             const errorRes = JSON.parse(xhr.responseText);
-                            reject(errorRes.error ? errorRes.error.message : 'خطأ غير معروف في السيرفر');
+                            reject(errorRes.error ? errorRes.error.message : 'خطأ في السيرفر');
                         } catch(e) {
-                            reject('فشل معالجة الرد من Cloudinary');
+                            reject('كود الاستجابة: ' + xhr.status);
                         }
                     }
                 };
 
                 xhr.onerror = function () {
-                    reject('خطأ في الاتصال بالإنترنت');
+                    reject('خطأ شبكة / حظر متصفح');
                 };
 
                 xhr.send(formData);
