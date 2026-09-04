@@ -59,7 +59,7 @@
 
         .post-card { background: var(--card-bg); border-radius: 12px; padding: 12px; margin-bottom: 12px; box-shadow: var(--shadow); }
         .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .post-author { display: flex; align-items: center; gap: 10px; }
+        .post-author { display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .author-name { font-weight: bold; font-size: 14px; }
         .post-time { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
         .post-text { font-size: 14px; line-height: 1.4; margin-bottom: 10px; white-space: pre-line; word-break: break-word; }
@@ -74,12 +74,13 @@
         .comments-section { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; display: none; }
         .comment-item { display: flex; gap: 8px; margin-bottom: 8px; font-size: 13px; }
         .comment-body { background: var(--input-bg); padding: 8px 12px; border-radius: 12px; flex: 1; }
-        .comment-user { font-weight: bold; margin-bottom: 2px; }
+        .comment-user { font-weight: bold; margin-bottom: 2px; cursor: pointer; }
         .comment-input-box { display: flex; gap: 8px; margin-top: 10px; }
         .comment-input-box input { flex: 1; padding: 8px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); outline: none; font-size: 12px; }
 
         .form-control { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg); color: var(--text); font-size: 14px; outline: none; }
         .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--primary); color: white; font-size: 15px; font-weight: bold; cursor: pointer; }
+        .btn-secondary { background: var(--input-bg); color: var(--text); }
 
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; display: none; justify-content: center; align-items: flex-end; }
         .modal-content { background: var(--card-bg); width: 100%; max-width: 480px; border-radius: 16px 16px 0 0; padding: 16px; max-height: 90vh; overflow-y: auto; }
@@ -98,11 +99,15 @@
 
         .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #323232; color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; z-index: 400; opacity: 0; transition: opacity 0.3s; pointer-events: none; text-align: center; max-width: 90%; }
         .toast.show { opacity: 1; }
+
+        /* User List Items */
+        .user-card { display: flex; align-items: center; justify-content: space-between; background: var(--card-bg); padding: 10px 12px; border-radius: 10px; margin-bottom: 8px; box-shadow: var(--shadow); }
+        .user-info { display: flex; align-items: center; gap: 10px; cursor: pointer; }
     </style>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, update, remove, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD3dC6ucOkNeo65pHx4JzPDwQ_jgciBu6Q",
@@ -130,11 +135,22 @@
         window.currentUser = myUser;
         let postsData = {};
         let storiesData = {};
+        let usersData = {};
+        let friendshipsData = {};
 
         document.addEventListener("DOMContentLoaded", () => {
+            syncUserProfile();
             updateUserUI();
             initRealtimeListeners();
         });
+
+        function syncUserProfile() {
+            set(ref(db, `users/${currentUser.id}`), {
+                id: currentUser.id,
+                name: currentUser.name,
+                avatar: currentUser.avatar
+            });
+        }
 
         function updateUserUI() {
             document.querySelectorAll('.my-avatar').forEach(img => img.src = currentUser.avatar);
@@ -143,19 +159,24 @@
         }
 
         function initRealtimeListeners() {
-            // Posts Listeners
-            const postsRef = ref(db, 'posts');
-            onValue(postsRef, (snapshot) => {
+            onValue(ref(db, 'posts'), (snapshot) => {
                 postsData = snapshot.val() || {};
                 updateOrRenderFeed();
                 updateOrRenderMyPosts();
             });
 
-            // Stories Listeners
-            const storiesRef = ref(db, 'stories');
-            onValue(storiesRef, (snapshot) => {
+            onValue(ref(db, 'stories'), (snapshot) => {
                 storiesData = snapshot.val() || {};
                 renderStories();
+            });
+
+            onValue(ref(db, 'users'), (snapshot) => {
+                usersData = snapshot.val() || {};
+            });
+
+            onValue(ref(db, 'friendships'), (snapshot) => {
+                friendshipsData = snapshot.val() || {};
+                renderFriendsTab();
             });
         }
 
@@ -187,7 +208,6 @@
             });
         }
 
-        // تحديث ذكي للمنشورات دون إعادة كتابة عنصر الـ HTML الفعلي إذا كان المنشور موجوداً بالفعل
         function updateOrRenderFeed() {
             const container = document.getElementById('feedContainer');
             const postKeys = Object.keys(postsData).reverse();
@@ -197,7 +217,6 @@
                 return;
             }
 
-            // إزالة المنشورات المحذوفة
             Array.from(container.children).forEach(child => {
                 const key = child.id.replace('post-', '');
                 if (!postsData[key] && child.classList.contains('post-card')) {
@@ -235,17 +254,15 @@
             myKeys.forEach(key => {
                 const existingPost = document.getElementById(`mypost-${key}`);
                 if (existingPost) {
-                    updatePostDOM(key, postsData[key], true);
+                    updatePostDOM(key, postsData[key], 'mypost-');
                 } else {
-                    const div = createPostCardHTML(key, postsData[key], true);
+                    const div = createPostCardHTML(key, postsData[key], 'mypost-');
                     container.appendChild(div);
                 }
             });
         }
 
-        // تحديث أجزاء التفاعل فقط (الإعجابات والتعليقات) بدون إرجاع الفيديو للبداية
-        function updatePostDOM(key, post, isProfile = false) {
-            const prefix = isProfile ? 'mypost-' : 'post-';
+        function updatePostDOM(key, post, prefix = 'post-') {
             const likesArr = post.likes ? Object.keys(post.likes) : [];
             const commentsArr = post.comments ? Object.values(post.comments) : [];
             const isLiked = likesArr.includes(currentUser.id);
@@ -267,7 +284,7 @@
                 commentsListEl.innerHTML = commentsArr.map(c => `
                     <div class="comment-item">
                         <div class="comment-body">
-                            <div class="comment-user">${c.userName}</div>
+                            <div class="comment-user" onclick="viewUserProfile('${c.userId}')">${c.userName}</div>
                             <div>${escapeHtml(c.text)}</div>
                         </div>
                     </div>
@@ -275,8 +292,7 @@
             }
         }
 
-        function createPostCardHTML(key, post, isProfile = false) {
-            const prefix = isProfile ? 'mypost-' : 'post-';
+        function createPostCardHTML(key, post, prefix = 'post-') {
             const likesArr = post.likes ? Object.keys(post.likes) : [];
             const commentsArr = post.comments ? Object.values(post.comments) : [];
             const isLiked = likesArr.includes(currentUser.id);
@@ -287,7 +303,7 @@
             div.id = `${prefix}${key}`;
             div.innerHTML = `
                 <div class="post-header">
-                    <div class="post-author">
+                    <div class="post-author" onclick="viewUserProfile('${post.userId}')">
                         <img src="${post.userAvatar}" class="avatar">
                         <div>
                             <div class="author-name">${post.userName}</div>
@@ -314,7 +330,7 @@
                         ${commentsArr.map(c => `
                             <div class="comment-item">
                                 <div class="comment-body">
-                                    <div class="comment-user">${c.userName}</div>
+                                    <div class="comment-user" onclick="viewUserProfile('${c.userId}')">${c.userName}</div>
                                     <div>${escapeHtml(c.text)}</div>
                                 </div>
                             </div>
@@ -435,6 +451,7 @@
                 const imageUrl = await uploadToCloudinary(file);
                 currentUser.avatar = imageUrl;
                 localStorage.setItem('sx_user', JSON.stringify(currentUser));
+                syncUserProfile();
                 updateUserUI();
                 showToast('تم تغيير صورة البروفايل بنجاح! 📸');
             } catch(e) {
@@ -448,6 +465,7 @@
 
             currentUser.name = newName;
             localStorage.setItem('sx_user', JSON.stringify(currentUser));
+            syncUserProfile();
             updateUserUI();
             showToast('تم تحديث بياناتك!');
         };
@@ -485,6 +503,133 @@
             }
         };
 
+        /* Friends & User View Functions */
+        function getFriendStatus(targetUserId) {
+            const pairId1 = `${currentUser.id}_${targetUserId}`;
+            const pairId2 = `${targetUserId}_${currentUser.id}`;
+            const f = friendshipsData[pairId1] || friendshipsData[pairId2];
+            if (!f) return 'none';
+            if (f.status === 'accepted') return 'friends';
+            if (f.status === 'pending') {
+                return f.actionUser === currentUser.id ? 'sent' : 'received';
+            }
+            return 'none';
+        }
+
+        window.sendFriendRequest = function(targetUserId) {
+            const pairId = `${currentUser.id}_${targetUserId}`;
+            set(ref(db, `friendships/${pairId}`), {
+                user1: currentUser.id,
+                user2: targetUserId,
+                actionUser: currentUser.id,
+                status: 'pending'
+            });
+            showToast('تم إرسال طلب الصداقة 👥');
+        };
+
+        window.acceptFriendRequest = function(targetUserId) {
+            const pairId1 = `${currentUser.id}_${targetUserId}`;
+            const pairId2 = `${targetUserId}_${currentUser.id}`;
+            const key = friendshipsData[pairId1] ? pairId1 : pairId2;
+
+            update(ref(db, `friendships/${key}`), {
+                status: 'accepted',
+                actionUser: currentUser.id
+            });
+            showToast('أصبحتم أصدقاء الآن! 🎉');
+        };
+
+        window.removeFriendship = function(targetUserId) {
+            const pairId1 = `${currentUser.id}_${targetUserId}`;
+            const pairId2 = `${targetUserId}_${currentUser.id}`;
+            const key = friendshipsData[pairId1] ? pairId1 : pairId2;
+
+            remove(ref(db, `friendships/${key}`));
+            showToast('تم الغاء الصداقة / الطلب.');
+        };
+
+        window.viewUserProfile = function(userId) {
+            if (userId === currentUser.id) {
+                switchTab('profile');
+                return;
+            }
+
+            const u = usersData[userId] || { name: 'مستخدم', avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=' + userId };
+            const status = getFriendStatus(userId);
+
+            document.getElementById('viewUserAvatar').src = u.avatar;
+            document.getElementById('viewUserName').innerText = u.name;
+
+            const btnContainer = document.getElementById('friendActionBtnContainer');
+            if (status === 'none') {
+                btnContainer.innerHTML = `<button class="btn" onclick="sendFriendRequest('${userId}'); viewUserProfile('${userId}')">إضافة صديق ➕</button>`;
+            } else if (status === 'sent') {
+                btnContainer.innerHTML = `<button class="btn btn-secondary" onclick="removeFriendship('${userId}'); viewUserProfile('${userId}')">إلغاء طلب الصداقة ✕</button>`;
+            } else if (status === 'received') {
+                btnContainer.innerHTML = `
+                    <button class="btn" style="margin-bottom:6px;" onclick="acceptFriendRequest('${userId}'); viewUserProfile('${userId}')">قبول الطلب ✔️</button>
+                    <button class="btn btn-secondary" onclick="removeFriendship('${userId}'); viewUserProfile('${userId}')">رفض ✕</button>
+                `;
+            } else if (status === 'friends') {
+                btnContainer.innerHTML = `<button class="btn btn-secondary" onclick="removeFriendship('${userId}'); viewUserProfile('${userId}')">إزالة من الأصدقاء 👥</button>`;
+            }
+
+            const postsContainer = document.getElementById('viewUserPostsContainer');
+            postsContainer.innerHTML = '';
+            const userPosts = Object.keys(postsData).filter(k => postsData[k].userId === userId).reverse();
+
+            if (userPosts.length === 0) {
+                postsContainer.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top:10px;">لا توجد منشورات لهذا المستخدم.</p>';
+            } else {
+                userPosts.forEach(key => {
+                    const div = createPostCardHTML(key, postsData[key], 'userpost-');
+                    postsContainer.appendChild(div);
+                });
+            }
+
+            switchTab('userProfile');
+        };
+
+        function renderFriendsTab() {
+            const container = document.getElementById('allUsersList');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const otherUserIds = Object.keys(usersData).filter(id => id !== currentUser.id);
+
+            if (otherUserIds.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top:10px;">لا يوجد مستخدمون آخرون بعد.</p>';
+                return;
+            }
+
+            otherUserIds.forEach(id => {
+                const u = usersData[id];
+                const status = getFriendStatus(id);
+
+                let btnHTML = '';
+                if (status === 'none') {
+                    btnHTML = `<button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="sendFriendRequest('${id}')">إضافة ➕</button>`;
+                } else if (status === 'sent') {
+                    btnHTML = `<span style="font-size:12px; color:var(--text-sub);">تم الإرسال</span>`;
+                } else if (status === 'received') {
+                    btnHTML = `<button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="acceptFriendRequest('${id}')">قبول ✔️</button>`;
+                } else if (status === 'friends') {
+                    btnHTML = `<span style="font-size:12px; color:var(--primary); font-weight:bold;">صديق 🤝</span>`;
+                }
+
+                const div = document.createElement('div');
+                div.className = 'user-card';
+                div.innerHTML = `
+                    <div class="user-info" onclick="viewUserProfile('${id}')">
+                        <img src="${u.avatar}" class="avatar">
+                        <span class="author-name">${u.name}</span>
+                    </div>
+                    <div>${btnHTML}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
         window.viewStory = function(url, type, name) {
             const viewer = document.getElementById('storyViewer');
             const content = document.getElementById('storyViewerContent');
@@ -515,9 +660,14 @@
             if (tab === 'home') {
                 document.getElementById('homeTab').style.display = 'block';
                 document.getElementById('navHome').classList.add('active');
+            } else if (tab === 'friends') {
+                document.getElementById('friendsTab').style.display = 'block';
+                document.getElementById('navFriends').classList.add('active');
             } else if (tab === 'profile') {
                 document.getElementById('profileTab').style.display = 'block';
                 document.getElementById('navProfile').classList.add('active');
+            } else if (tab === 'userProfile') {
+                document.getElementById('userProfileTab').style.display = 'block';
             }
         }
 
@@ -569,6 +719,26 @@
             <div id="feedContainer"></div>
         </div>
 
+        <!-- الأصدقاء واكتشاف المستخدمين -->
+        <div class="page-view tab-page" id="friendsTab" style="display: none;">
+            <h3 style="margin-bottom: 12px; color: var(--text);">المستخدمين والطلبات</h3>
+            <div id="allUsersList"></div>
+        </div>
+
+        <!-- بروفايل المستخدمين الآخرين -->
+        <div class="page-view tab-page" id="userProfileTab" style="display: none;">
+            <button class="btn btn-secondary" style="margin-bottom: 12px; width: auto; padding: 6px 12px; font-size: 12px;" onclick="switchTab('home')">← عودة للرئيسية</button>
+            <div class="profile-card">
+                <div class="profile-avatar-wrapper">
+                    <img src="" id="viewUserAvatar" class="avatar">
+                </div>
+                <h3 id="viewUserName" style="margin-bottom: 15px;"></h3>
+                <div id="friendActionBtnContainer"></div>
+            </div>
+            <h4 style="margin-bottom: 10px; color: var(--text-sub);">المنشورات:</h4>
+            <div id="viewUserPostsContainer"></div>
+        </div>
+
         <!-- الملف الشخصي -->
         <div class="page-view tab-page" id="profileTab" style="display: none;">
             <div class="profile-card">
@@ -590,6 +760,9 @@
     <div class="nav-bar">
         <button class="nav-btn active" id="navHome" onclick="switchTab('home')">
             <span>🏠</span>الرئيسية
+        </button>
+        <button class="nav-btn" id="navFriends" onclick="switchTab('friends')">
+            <span>👥</span>الأصدقاء
         </button>
         <button class="nav-btn" id="navProfile" onclick="switchTab('profile')">
             <span>👤</span>حسابي
