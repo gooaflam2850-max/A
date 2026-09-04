@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SocialX - فيديو وصور لايف</title>
+    <title>SocialX - التطبيق الكامل</title>
     <meta name="theme-color" content="#1877f2">
     <style>
         :root {
@@ -35,10 +35,23 @@
 
         header { background: var(--card-bg); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
         .logo { font-size: 22px; font-weight: 800; color: var(--primary); text-decoration: none; }
-        .icon-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--input-bg); border: none; color: var(--text); display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; }
+        .header-icons { display: flex; gap: 8px; }
 
         .view-content { flex: 1; overflow-y: auto; padding-bottom: 70px; }
         .page-view { display: block; padding: 12px; }
+
+        /* Stories Bar */
+        .stories-bar { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 12px; scrollbar-width: none; }
+        .stories-bar::-webkit-scrollbar { display: none; }
+        .story-item { flex: 0 0 80px; height: 110px; border-radius: 12px; position: relative; overflow: hidden; background: #000; cursor: pointer; border: 2px solid var(--primary); }
+        .story-item.add-story { background: var(--input-bg); border: 2px dashed var(--border); display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--primary); font-weight: bold; font-size: 12px; text-align: center; }
+        .story-media { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; }
+        .story-name { position: absolute; bottom: 4px; right: 4px; left: 4px; font-size: 10px; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
+
+        /* Navigation Bar */
+        .nav-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--card-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 0; z-index: 100; }
+        .nav-btn { background: none; border: none; color: var(--text-sub); font-size: 20px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; }
+        .nav-btn.active { color: var(--primary); font-weight: bold; }
 
         .post-trigger { background: var(--card-bg); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow); margin-bottom: 12px; cursor: pointer; }
         .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #ddd; flex-shrink: 0; }
@@ -68,11 +81,20 @@
         .form-control { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg); color: var(--text); font-size: 14px; outline: none; }
         .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--primary); color: white; font-size: 15px; font-weight: bold; cursor: pointer; }
 
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; justify-content: center; align-items: flex-end; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; display: none; justify-content: center; align-items: flex-end; }
         .modal-content { background: var(--card-bg); width: 100%; max-width: 480px; border-radius: 16px 16px 0 0; padding: 16px; max-height: 90vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .icon-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--input-bg); border: none; color: var(--text); display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; }
 
-        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #323232; color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; z-index: 300; opacity: 0; transition: opacity 0.3s; pointer-events: none; text-align: center; max-width: 90%; }
+        /* Profile Screen */
+        .profile-card { background: var(--card-bg); border-radius: 12px; padding: 20px; text-align: center; box-shadow: var(--shadow); margin-bottom: 15px; }
+        .profile-card .avatar { width: 80px; height: 80px; margin: 0 auto 10px; }
+
+        /* Story View Modal */
+        .story-viewer { position: fixed; inset: 0; background: #000; z-index: 300; display: none; flex-direction: column; justify-content: center; align-items: center; }
+        .story-viewer-media { max-width: 100%; max-height: 80vh; object-fit: contain; }
+
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #323232; color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; z-index: 400; opacity: 0; transition: opacity 0.3s; pointer-events: none; text-align: center; max-width: 90%; }
         .toast.show { opacity: 1; }
     </style>
 
@@ -93,7 +115,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // استخدام الـ Preset الافتراضي ml_default المكتشف بحسابك
         const CLOUD_NAME = "dgzcvymc";
         const UPLOAD_PRESET = "ml_default";
 
@@ -106,68 +127,62 @@
 
         window.currentUser = myUser;
         let postsData = {};
+        let storiesData = {};
 
         document.addEventListener("DOMContentLoaded", () => {
-            document.querySelectorAll('.my-avatar').forEach(img => img.src = currentUser.avatar);
+            updateUserUI();
             initRealtimeListeners();
         });
 
-        function initRealtimeListeners() {
-            const postsRef = ref(db, 'posts');
+        function updateUserUI() {
+            document.querySelectorAll('.my-avatar').forEach(img => img.src = currentUser.avatar);
+            document.querySelectorAll('.my-name').forEach(el => el.innerText = currentUser.name);
+            document.getElementById('editProfileName').value = currentUser.name;
+        }
 
+        function initRealtimeListeners() {
+            // Posts Listeners
+            const postsRef = ref(db, 'posts');
             onValue(postsRef, (snapshot) => {
                 postsData = snapshot.val() || {};
                 renderFeed();
-            }, { onlyOnce: true });
-
-            onChildAdded(postsRef, (snapshot) => {
-                const key = snapshot.key;
-                if (!postsData[key]) {
-                    postsData[key] = snapshot.val();
-                    renderFeed();
-                }
+                renderMyPosts();
             });
 
-            onChildRemoved(postsRef, (snapshot) => {
-                delete postsData[snapshot.key];
-                const card = document.getElementById(`post-${snapshot.key}`);
-                if (card) card.remove();
-            });
-
-            onChildChanged(postsRef, (snapshot) => {
-                const key = snapshot.key;
-                const post = snapshot.val();
-                postsData[key] = post;
-                updatePostUI(key, post);
+            // Stories Listeners
+            const storiesRef = ref(db, 'stories');
+            onValue(storiesRef, (snapshot) => {
+                storiesData = snapshot.val() || {};
+                renderStories();
             });
         }
 
-        function updatePostUI(key, post) {
-            const likesArr = post.likes ? Object.keys(post.likes) : [];
-            const commentsArr = post.comments ? Object.values(post.comments) : [];
-            const isLiked = likesArr.includes(currentUser.id);
+        function renderStories() {
+            const container = document.getElementById('storiesContainer');
+            container.innerHTML = `
+                <div class="story-item add-story" onclick="openModal('createStoryModal')">
+                    <span style="font-size:20px;">+</span>
+                    <span>قصة جديدة</span>
+                </div>
+            `;
 
-            const likesCountEl = document.getElementById(`likes-count-${key}`);
-            const commentsCountEl = document.getElementById(`comments-count-${key}`);
-            const likeBtnEl = document.getElementById(`like-btn-${key}`);
-            const commentsListEl = document.getElementById(`comments-list-${key}`);
+            const now = Date.now();
+            const validStories = Object.keys(storiesData)
+                .map(key => ({ key, ...storiesData[key] }))
+                .filter(s => (now - s.timestamp) < (24 * 60 * 60 * 1000)); // حذف الأقدم من 24 ساعة
 
-            if (likesCountEl) likesCountEl.innerText = `❤️ ${likesArr.length} إعجاب`;
-            if (commentsCountEl) commentsCountEl.innerText = `💬 ${commentsArr.length} تعليق`;
-            if (likeBtnEl) {
-                likeBtnEl.className = `action-btn ${isLiked ? 'liked' : ''}`;
-                likeBtnEl.innerHTML = `❤️ ${isLiked ? 'أعجبني' : 'إعجاب'}`;
-            }
-            if (commentsListEl) {
-                commentsListEl.innerHTML = commentsArr.map(c => `
-                    <div class="comment-item">
-                        <div class="comment-body">
-                            <div class="comment-user">${c.userName}</div>
-                            <div>${escapeHtml(c.text)}</div>
-                        </div>
-                    </div>
-                `).join('');
-            }
+            validStories.reverse().forEach(story => {
+                const div = document.createElement('div');
+                div.className = 'story-item';
+                div.onclick = () => viewStory(story.mediaUrl, story.mediaType, story.userName);
+                
+                if (story.mediaType === 'image') {
+                    div.innerHTML = `<img src="${story.mediaUrl}" class="story-media"><div class="story-name">${story.userName}</div>`;
+                } else {
+                    div.innerHTML = `<video src="${story.mediaUrl}" class="story-media"></video><div class="story-name">${story.userName}</div>`;
+                }
+                container.appendChild(div);
+            });
         }
 
         function renderFeed() {
@@ -181,58 +196,78 @@
             }
 
             postKeys.forEach(key => {
-                const post = postsData[key];
-                const likesArr = post.likes ? Object.keys(post.likes) : [];
-                const commentsArr = post.comments ? Object.values(post.comments) : [];
-                const isLiked = likesArr.includes(currentUser.id);
-                const isOwner = post.userId === currentUser.id;
-
-                const div = document.createElement('div');
-                div.className = 'post-card';
-                div.id = `post-${key}`;
-                div.innerHTML = `
-                    <div class="post-header">
-                        <div class="post-author">
-                            <img src="${post.userAvatar}" class="avatar">
-                            <div>
-                                <div class="author-name">${post.userName}</div>
-                                <div class="post-time">${timeAgo(post.timestamp)}</div>
-                            </div>
-                        </div>
-                        ${isOwner ? `<button class="icon-btn" onclick="deletePost('${key}')">🗑️</button>` : ''}
-                    </div>
-                    <div class="post-text">${escapeHtml(post.text)}</div>
-                    
-                    ${post.mediaType === 'image' ? `<img src="${post.mediaUrl}" class="post-media">` : ''}
-                    ${post.mediaType === 'video' ? `<video src="${post.mediaUrl}" controls class="post-media" playsinline></video>` : ''}
-
-                    <div class="post-stats">
-                        <span id="likes-count-${key}">❤️ ${likesArr.length} إعجاب</span>
-                        <span id="comments-count-${key}">💬 ${commentsArr.length} تعليق</span>
-                    </div>
-                    <div class="post-actions">
-                        <button id="like-btn-${key}" class="action-btn ${isLiked ? 'liked' : ''}" onclick="likePost('${key}')">❤️ ${isLiked ? 'أعجبني' : 'إعجاب'}</button>
-                        <button class="action-btn" onclick="toggleComments('${key}')">💬 تعليق</button>
-                    </div>
-                    <div class="comments-section" id="comments-${key}">
-                        <div id="comments-list-${key}">
-                            ${commentsArr.map(c => `
-                                <div class="comment-item">
-                                    <div class="comment-body">
-                                        <div class="comment-user">${c.userName}</div>
-                                        <div>${escapeHtml(c.text)}</div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="comment-input-box">
-                            <input type="text" id="input-${key}" placeholder="اكتب تعليقاً...">
-                            <button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="addComment('${key}')">إرسال</button>
-                        </div>
-                    </div>
-                `;
+                const div = createPostCardHTML(key, postsData[key]);
                 container.appendChild(div);
             });
+        }
+
+        function renderMyPosts() {
+            const container = document.getElementById('myPostsContainer');
+            container.innerHTML = '';
+
+            const myKeys = Object.keys(postsData).filter(k => postsData[k].userId === currentUser.id).reverse();
+            if (myKeys.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top:20px;">لم تقم بنشر أي منشور بعد.</p>';
+                return;
+            }
+
+            myKeys.forEach(key => {
+                const div = createPostCardHTML(key, postsData[key]);
+                container.appendChild(div);
+            });
+        }
+
+        function createPostCardHTML(key, post) {
+            const likesArr = post.likes ? Object.keys(post.likes) : [];
+            const commentsArr = post.comments ? Object.values(post.comments) : [];
+            const isLiked = likesArr.includes(currentUser.id);
+            const isOwner = post.userId === currentUser.id;
+
+            const div = document.createElement('div');
+            div.className = 'post-card';
+            div.id = `post-${key}`;
+            div.innerHTML = `
+                <div class="post-header">
+                    <div class="post-author">
+                        <img src="${post.userAvatar}" class="avatar">
+                        <div>
+                            <div class="author-name">${post.userName}</div>
+                            <div class="post-time">${timeAgo(post.timestamp)}</div>
+                        </div>
+                    </div>
+                    ${isOwner ? `<button class="icon-btn" onclick="deletePost('${key}')">🗑️</button>` : ''}
+                </div>
+                <div class="post-text">${escapeHtml(post.text)}</div>
+                
+                ${post.mediaType === 'image' ? `<img src="${post.mediaUrl}" class="post-media">` : ''}
+                ${post.mediaType === 'video' ? `<video src="${post.mediaUrl}" controls class="post-media" playsinline></video>` : ''}
+
+                <div class="post-stats">
+                    <span id="likes-count-${key}">❤️ ${likesArr.length} إعجاب</span>
+                    <span id="comments-count-${key}">💬 ${commentsArr.length} تعليق</span>
+                </div>
+                <div class="post-actions">
+                    <button id="like-btn-${key}" class="action-btn ${isLiked ? 'liked' : ''}" onclick="likePost('${key}')">❤️ ${isLiked ? 'أعجبني' : 'إعجاب'}</button>
+                    <button class="action-btn" onclick="toggleComments('${key}')">💬 تعليق</button>
+                </div>
+                <div class="comments-section" id="comments-${key}">
+                    <div id="comments-list-${key}">
+                        ${commentsArr.map(c => `
+                            <div class="comment-item">
+                                <div class="comment-body">
+                                    <div class="comment-user">${c.userName}</div>
+                                    <div>${escapeHtml(c.text)}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="comment-input-box">
+                        <input type="text" id="input-${key}" placeholder="اكتب تعليقاً...">
+                        <button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="addComment('${key}')">إرسال</button>
+                    </div>
+                </div>
+            `;
+            return div;
         }
 
         function uploadToCloudinary(file) {
@@ -249,20 +284,10 @@
                         const response = JSON.parse(xhr.responseText);
                         resolve(response.secure_url);
                     } else {
-                        console.error('Cloudinary Error:', xhr.responseText);
-                        try {
-                            const errorRes = JSON.parse(xhr.responseText);
-                            reject(errorRes.error ? errorRes.error.message : 'خطأ في السيرفر');
-                        } catch(e) {
-                            reject('كود الاستجابة: ' + xhr.status);
-                        }
+                        reject('خطأ في الرفع');
                     }
                 };
-
-                xhr.onerror = function () {
-                    reject('خطأ شبكة / حظر متصفح');
-                };
-
+                xhr.onerror = function () { reject('خطأ شبكة'); };
                 xhr.send(formData);
             });
         }
@@ -275,7 +300,7 @@
             if (!text && !file) return showToast('لا يمكن نشر منشور فارغ!');
 
             btn.disabled = true;
-            btn.innerText = "جاري رفع الملف...";
+            btn.innerText = "جاري النشر...";
 
             let mediaUrl = '';
             let mediaType = '';
@@ -284,11 +309,10 @@
                 try {
                     mediaType = file.type.startsWith('video/') ? 'video' : 'image';
                     mediaUrl = await uploadToCloudinary(file);
-                } catch(errorMsg) {
-                    console.error('Upload error:', errorMsg);
+                } catch(e) {
                     btn.disabled = false;
                     btn.innerText = "نشر الآن";
-                    return showToast('سبب الخطأ: ' + errorMsg);
+                    return showToast('فشل رفع الملف!');
                 }
             }
 
@@ -307,7 +331,50 @@
             btn.disabled = false;
             btn.innerText = "نشر الآن";
             closeModal('createPostModal');
-            showToast('تم النشر بنجاح للجميع!');
+            showToast('تم نشر منشورك!');
+        };
+
+        window.createStory = async function() {
+            const file = document.getElementById('storyFileInput').files[0];
+            const btn = document.getElementById('storyBtn');
+
+            if (!file) return showToast('اختر صورة أو فيديو للقصة!');
+
+            btn.disabled = true;
+            btn.innerText = "جاري رفع القصة...";
+
+            try {
+                const mediaType = file.type.startsWith('video/') ? 'video' : 'image';
+                const mediaUrl = await uploadToCloudinary(file);
+
+                push(ref(db, 'stories'), {
+                    userId: currentUser.id,
+                    userName: currentUser.name,
+                    mediaUrl: mediaUrl,
+                    mediaType: mediaType,
+                    timestamp: Date.now()
+                });
+
+                document.getElementById('storyFileInput').value = '';
+                btn.disabled = false;
+                btn.innerText = "نشر القصة";
+                closeModal('createStoryModal');
+                showToast('تم إضافة قصتك بنجاح! 🎉');
+            } catch(e) {
+                btn.disabled = false;
+                btn.innerText = "نشر القصة";
+                showToast('فشل رفع القصة!');
+            }
+        };
+
+        window.saveProfile = function() {
+            const newName = document.getElementById('editProfileName').value.trim();
+            if (!newName) return showToast('الاسم لا يمكن أن يكون فارغاً!');
+
+            currentUser.name = newName;
+            localStorage.setItem('sx_user', JSON.stringify(currentUser));
+            updateUserUI();
+            showToast('تم تحديث بياناتك!');
         };
 
         window.likePost = function(key) {
@@ -317,6 +384,7 @@
                 remove(likesRef);
             } else {
                 update(ref(db, `posts/${key}/likes`), { [currentUser.id]: true });
+                showToast('أعجبك المنشور ❤️');
             }
         };
 
@@ -332,6 +400,7 @@
                 timestamp: Date.now()
             });
             input.value = '';
+            showToast('تم إضافة تعليقك 💬');
         };
 
         window.deletePost = function(key) {
@@ -340,11 +409,43 @@
                 showToast('تم حذف المنشور.');
             }
         };
+
+        window.viewStory = function(url, type, name) {
+            const viewer = document.getElementById('storyViewer');
+            const content = document.getElementById('storyViewerContent');
+            document.getElementById('storyAuthorName').innerText = name;
+
+            if (type === 'image') {
+                content.innerHTML = `<img src="${url}" class="story-viewer-media">`;
+            } else {
+                content.innerHTML = `<video src="${url}" controls autoplay class="story-viewer-media"></video>`;
+            }
+            viewer.style.display = 'flex';
+        };
+
+        window.closeStoryViewer = function() {
+            document.getElementById('storyViewer').style.display = 'none';
+            document.getElementById('storyViewerContent').innerHTML = '';
+        };
     </script>
 
     <script>
-        function openCreatePostModal() { document.getElementById('createPostModal').style.display = 'flex'; }
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-page').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            
+            if (tab === 'home') {
+                document.getElementById('homeTab').style.display = 'block';
+                document.getElementById('navHome').classList.add('active');
+            } else if (tab === 'profile') {
+                document.getElementById('profileTab').style.display = 'block';
+                document.getElementById('navProfile').classList.add('active');
+            }
+        }
+
         function toggleComments(key) {
             const el = document.getElementById('comments-' + key);
             el.style.display = el.style.display === 'block' ? 'none' : 'block';
@@ -356,7 +457,7 @@
             const t = document.getElementById('toast');
             t.innerText = msg;
             t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 4000);
+            setTimeout(() => t.classList.remove('show'), 3000);
         }
         function timeAgo(timestamp) {
             const diff = Math.floor((Date.now() - timestamp) / 1000);
@@ -381,13 +482,39 @@
     </header>
 
     <div class="view-content">
-        <div class="page-view">
-            <div class="post-trigger" onclick="openCreatePostModal()">
+        <!-- الرئيسية -->
+        <div class="page-view tab-page" id="homeTab">
+            <!-- Stories -->
+            <div class="stories-bar" id="storiesContainer"></div>
+
+            <div class="post-trigger" onclick="openModal('createPostModal')">
                 <img src="" class="avatar my-avatar">
                 <div class="trigger-input">بم تفكر اليوم؟</div>
             </div>
             <div id="feedContainer"></div>
         </div>
+
+        <!-- الملف الشخصي -->
+        <div class="page-view tab-page" id="profileTab" style="display: none;">
+            <div class="profile-card">
+                <img src="" class="avatar my-avatar">
+                <h3 class="my-name" style="margin-bottom: 10px;"></h3>
+                <input type="text" id="editProfileName" class="form-control" style="margin-bottom: 10px; text-align: center;">
+                <button class="btn" onclick="saveProfile()">حفظ الاسم الجديد</button>
+            </div>
+            <h4 style="margin-bottom: 10px; color: var(--text-sub);">منشوراتي:</h4>
+            <div id="myPostsContainer"></div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-bar">
+        <button class="nav-btn active" id="navHome" onclick="switchTab('home')">
+            <span>🏠</span>الرئيسية
+        </button>
+        <button class="nav-btn" id="navProfile" onclick="switchTab('profile')">
+            <span>👤</span>حسابي
+        </button>
     </div>
 </div>
 
@@ -405,6 +532,30 @@
         </div>
         <button class="btn" id="publishBtn" style="margin-top: 15px;" onclick="createPost()">نشر الآن</button>
     </div>
+</div>
+
+<!-- Modal Create Story -->
+<div class="modal" id="createStoryModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>إضافة قصة جديدة</h3>
+            <button class="icon-btn" onclick="closeModal('createStoryModal')">✕</button>
+        </div>
+        <div>
+            <label style="font-size:12px; color:var(--text-sub);">اختر صورة أو فيديو (تختفي بعد 24 ساعة)</label>
+            <input type="file" class="form-control" id="storyFileInput" accept="image/*,video/*" style="margin-top:10px;">
+        </div>
+        <button class="btn" id="storyBtn" style="margin-top: 15px;" onclick="createStory()">نشر القصة</button>
+    </div>
+</div>
+
+<!-- Story Viewer -->
+<div class="story-viewer" id="storyViewer">
+    <div style="position: absolute; top: 15px; right: 15px; left: 15px; display: flex; justify-content: space-between; align-items: center; color: white;">
+        <span id="storyAuthorName" style="font-weight: bold;"></span>
+        <button class="icon-btn" onclick="closeStoryViewer()" style="background: rgba(255,255,255,0.3); color: white;">✕</button>
+    </div>
+    <div id="storyViewerContent"></div>
 </div>
 
 <div class="toast" id="toast"></div>
