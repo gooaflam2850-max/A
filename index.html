@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#1877f2">
-<title>SocialX V3.1 Stable</title>
+<title>SocialX V3.2 Swiss Mobile</title>
 <style>
 :root{--primary:#1877f2;--bg:#f0f2f5;--card:#fff;--text:#050505;--sub:#65676b;--border:#e4e6eb;--input:#f0f2f5;--danger:#e41e3f;--shadow:0 1px 4px #0001}
 body.dark{--bg:#18191a;--card:#242526;--text:#e4e6eb;--sub:#b0b3b8;--border:#393a3b;--input:#3a3b3c;--shadow:0 1px 4px #0004}
@@ -100,6 +100,77 @@ input,textarea,.select{width:100%;border:1px solid var(--border);background:var(
 .chat-send{width:44px;height:44px;border:0;border-radius:50%;background:var(--primary);color:#fff;font-size:18px}
 .chat-empty{text-align:center;color:var(--sub);padding:45px 15px}
 
+</style>
+
+<style id="modern-flat-theme">
+:root{--primary:#2563eb;--bg:#f5f7fb;--card:#fff;--text:#172033;--sub:#697386;--border:#e5e9f0;--input:#f8fafc;--danger:#ef4444;--shadow:0 2px 8px rgba(15,23,42,.06)}
+body{background:var(--bg);color:var(--text);overflow:hidden;font-family:Arial,Helvetica,sans-serif}
+body.dark{--primary:#60a5fa;--bg:#111827;--card:#1f2937;--text:#f3f4f6;--sub:#aab3c2;--border:#374151;--input:#273244;--danger:#f87171;--shadow:0 2px 8px rgba(0,0,0,.18)}
+.app{width:100%;max-width:520px;height:100dvh;background:var(--bg)}
+header{height:58px;min-height:58px;border:0;border-bottom:1px solid var(--border);background:var(--card);padding:0 14px;box-shadow:0 1px 4px rgba(15,23,42,.04);position:sticky;top:0}
+.logo{font-size:23px;font-weight:800;letter-spacing:-.5px;color:var(--primary)}
+.icon{width:38px;height:38px;border-radius:10px;background:var(--input);border:1px solid var(--border);transition:.15s}
+.content{padding:12px 10px 78px;scroll-behavior:smooth}
+.card{border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--card);box-shadow:var(--shadow)}
+.stories{gap:8px;padding-bottom:4px}.story{min-width:76px;height:104px;border-radius:10px;border:1px solid var(--border);box-shadow:none}.addstory{background:var(--input);border:1px dashed #b8c2d1}
+.avatar{width:42px;height:42px;border-radius:10px}.trigger{padding:10px;border-radius:12px}.pill{background:var(--input);border:1px solid var(--border);border-radius:10px;padding:10px 14px}
+.post-head{gap:8px}.post-text{font-size:15px;line-height:1.65}.media{border-radius:10px;max-height:430px}.stats{padding:8px 2px}.actions{gap:3px}.action{border-radius:8px;padding:9px 2px;transition:.15s}.action:active{transform:scale(.97);background:var(--input)}
+input,textarea,.select{border:1px solid var(--border);background:var(--input);border-radius:9px;padding:11px 12px;color:var(--text)}
+.btn{border-radius:9px;box-shadow:none;background:var(--primary)}.secondary{box-shadow:none;background:var(--input);color:var(--text);border:1px solid var(--border)}
+.nav{height:68px;padding:5px 4px calc(5px + env(safe-area-inset-bottom));bottom:0;border:0;border-top:1px solid var(--border);background:var(--card);box-shadow:0 -2px 8px rgba(15,23,42,.05);backdrop-filter:blur(10px);padding-bottom:max(5px,env(safe-area-inset-bottom))}
+body.dark .nav{background:var(--card)}.nav button{font-size:10px;min-width:0;padding:4px 2px;border-radius:9px}.nav button b{font-size:18px;line-height:22px}.nav button.active{background:rgba(37,99,235,.10);color:var(--primary)}
+.list{padding:10px 2px}.smallbtn{border-radius:8px}.profile{padding:20px 14px}.bigavatar{width:94px;height:94px;border-radius:16px;border:2px solid var(--primary);padding:2px;background:var(--card)}.badge{background:rgba(37,99,235,.10);color:var(--primary);font-weight:700}
+.modal{align-items:flex-end;background:rgba(15,23,42,.35)}.modalbox{max-width:520px;border-radius:16px 16px 0 0;padding:17px;box-shadow:0 -5px 20px rgba(0,0,0,.12)}
+.chat-screen{width:100%;max-width:520px;height:100dvh}.chat-head{height:60px;min-height:60px;border:0;border-bottom:1px solid var(--border);box-shadow:none}.message{border-radius:12px}.mine .message{background:var(--primary);border-bottom-left-radius:4px}.theirs .message{border-bottom-right-radius:4px;background:var(--card);border:1px solid var(--border)}
+.chat-compose{padding:8px;padding-bottom:max(8px,env(safe-area-inset-bottom));border:0;border-top:1px solid var(--border);box-shadow:none}.chat-send{background:var(--primary);box-shadow:none}
+@media(min-width:521px){body{background:#e9edf3}.app{box-shadow:0 0 25px rgba(15,23,42,.10)}}
+@media(max-width:380px){.nav button{font-size:9px}.nav button b{font-size:17px}.content{padding-left:8px;padding-right:8px}.card{border-radius:10px}}
+</style>
+<style id="swiss-design-theme">
+/* Swiss / International Typographic Style — mobile first */
+:root{
+ --primary:#e21b23;--bg:#f7f7f5;--card:#fff;--text:#111;--sub:#666;
+ --border:#111;--input:#f1f1ef;--danger:#d10f18;--shadow:none;
+}
+*{box-sizing:border-box}
+html,body{font-family:Arial,Helvetica,sans-serif;background:#dcdcdc;color:var(--text)}
+body{background:linear-gradient(90deg,#e8e8e6 0,#e8e8e6 50%,#dcdcdc 50%);overflow:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(20% - 1px),#111 calc(20% - 1px),#111 20%);z-index:0}
+body.dark{--primary:#ff3038;--bg:#111;--card:#191919;--text:#f5f5f3;--sub:#aaa;--border:#f5f5f3;--input:#242424;--danger:#ff4650;background:#090909}
+.app{position:relative;z-index:1;width:100%;max-width:520px;height:100dvh;background:var(--bg);border-left:1px solid var(--border);border-right:1px solid var(--border);box-shadow:none}
+header{height:62px;min-height:62px;border:0;border-bottom:2px solid var(--border);background:var(--card);padding:0 14px;box-shadow:none;position:sticky;top:0}
+.logo{font-size:25px;font-weight:900;letter-spacing:-1.5px;color:var(--text)}
+.logo:after{content:" / SOCIAL NETWORK";font-size:8px;letter-spacing:1.2px;font-weight:700;color:var(--primary);margin-right:7px}
+.icon{width:36px;height:36px;border-radius:0;background:transparent;border:1px solid var(--border);color:var(--text);transition:none}
+.icon:hover{background:var(--primary);color:#fff}
+.content{padding:14px 14px 82px;scroll-behavior:smooth}
+.page h2,.page h3{font-weight:900;letter-spacing:-.7px}
+.page h2{font-size:28px;border-bottom:2px solid var(--border);padding-bottom:9px;margin:4px 0 14px}
+.card{border:1px solid var(--border);border-radius:0;padding:14px;margin-bottom:14px;box-shadow:none;background:var(--card)}
+.stories{gap:8px;padding-bottom:4px}
+.story{min-width:76px;height:104px;border-radius:0;border:2px solid var(--border);box-shadow:none}
+.addstory{background:var(--input);border:2px solid var(--primary)}
+.avatar{width:42px;height:42px;border-radius:0;border:1px solid var(--border)}
+.trigger{padding:11px;border-radius:0;border:1px solid var(--border);background:var(--card)}
+.pill{background:var(--input);border:1px solid var(--border);border-radius:0;padding:10px 13px}
+.post-head{gap:9px}.post-text{font-size:15px;line-height:1.7}.media{border-radius:0;max-height:430px;border:1px solid var(--border)}
+.stats{padding:8px 0;border-top:1px solid #bbb;border-bottom:1px solid #bbb}.actions{gap:0}.action{border-radius:0;padding:10px 2px;transition:none;font-weight:800}.action:hover{background:var(--primary);color:#fff}
+input,textarea,.select{border:1px solid var(--border);background:var(--input);border-radius:0;padding:11px 12px;outline:none}
+input:focus,textarea:focus,.select:focus{border:2px solid var(--primary)}
+.btn{border-radius:0;box-shadow:none;background:var(--primary);font-weight:900;letter-spacing:.2px}.btn:hover{background:#111}.secondary{box-shadow:none;border:1px solid var(--border);background:var(--card);color:var(--text)}
+.nav{height:70px;padding:5px 4px calc(5px + env(safe-area-inset-bottom));bottom:0;border:0;border-top:2px solid var(--border);background:var(--card);box-shadow:none;backdrop-filter:none;padding-bottom:max(5px,env(safe-area-inset-bottom))}
+.nav button{font-size:9px;min-width:0;padding:4px 2px;border-radius:0;font-weight:800;text-transform:uppercase}.nav button b{font-size:18px;line-height:21px}.nav button.active{background:var(--primary);color:#fff}
+.list{padding:10px 0}.smallbtn{border-radius:0;border:1px solid var(--border)}
+.profile{padding:20px 14px}.bigavatar{width:94px;height:94px;border-radius:0;border:3px solid var(--border);padding:2px;background:var(--card)}
+.badge{background:var(--text);color:var(--card);font-weight:900;border-radius:0}
+.modal{align-items:flex-end;background:rgba(0,0,0,.65)}.modalbox{max-width:520px;border-radius:0;border-top:5px solid var(--primary);padding:18px;box-shadow:none}
+.chat-screen{width:100%;max-width:520px;height:100dvh}.chat-head{height:62px;min-height:62px;border:0;border-bottom:2px solid var(--border);box-shadow:none}.message{border-radius:0;border:1px solid var(--border)}.mine .message{background:var(--primary);color:#fff;border:1px solid var(--primary);border-bottom-left-radius:0}.theirs .message{border-bottom-right-radius:0;background:var(--card)}
+.chat-compose{padding:8px;padding-bottom:max(8px,env(safe-area-inset-bottom));border:0;border-top:2px solid var(--border);box-shadow:none;background:var(--card)}.chat-send{background:var(--primary);box-shadow:none;border-radius:0}
+/* Swiss grid details */
+.section-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:900;color:var(--primary)}
+hr{border:0;border-top:1px solid var(--border)}
+@media(min-width:521px){body{background:#dcdcdc}.app{box-shadow:0 0 0 1px #111}}
+@media(max-width:380px){.content{padding-left:10px;padding-right:10px}.card{padding:12px}.page h2{font-size:25px}.nav button{font-size:8px}}
 </style>
 </head>
 <body>
