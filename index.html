@@ -488,6 +488,8 @@ window.saveName=async()=>{const n=$('newName').value.trim();if(!n)return toast('
 window.uploadAvatar=async()=>{const f=$('avatarInput').files[0];if(!f)return toast('اختر صورة');try{const u=await upload(f);await updateProfile(me,{photoURL:u});await update(ref(db,'users/'+me.uid),{avatar:u});toast('تم تغيير الصورة')}catch{toast('فشل رفع الصورة')}};
 function renderProfile(){if(!me)return;const u=users[me.uid];$('profileAvatar').src=u?.avatar||me.photoURL||avatar(me.uid);$('myAvatarTop').src=u?.avatar||me.photoURL||avatar(me.uid);$('profileName').textContent=u?.name||me.displayName||'مستخدم';$('newName').value=u?.name||me.displayName||''}
 function renderSettings(){const b=document.querySelector('#settingsPage .smallbtn');if(b)b.textContent=document.body.classList.contains('dark')?'الوضع النهاري':'الوضع الليلي'}
+// Expose functions used by inline HTML onclick handlers.
+Object.assign(window,{renderChats,renderFriends,renderUsers,renderNotifications,renderProfile,renderSettings});
 window.go=id=>{
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
   const page=$(id);
@@ -511,4 +513,4 @@ window.toggleDark=()=>{document.body.classList.toggle('dark');localStorage.setIt
 <div id="bootError"><div class="box"><h2>SocialX</h2><p>حدث خطأ في تشغيل التطبيق.</p><pre id="bootErrorText"></pre><button class="btn" onclick="location.reload()">إعادة المحاولة</button></div></div>
 <script>window.addEventListener('error',e=>{let x=document.getElementById('bootError'),t=document.getElementById('bootErrorText');if(x&&t){t.textContent=e.message||'JavaScript error';x.style.display='block'}});window.addEventListener('unhandledrejection',e=>{let x=document.getElementById('bootError'),t=document.getElementById('bootErrorText');if(x&&t){t.textContent=(e.reason&&e.reason.message)||String(e.reason)||'Unexpected error';x.style.display='block'}});</script>
 </body>
-                                                                </html>
+              </html>
