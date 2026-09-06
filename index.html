@@ -86,10 +86,11 @@ input,textarea,.select{width:100%;border:1px solid var(--border);background:var(
 .chat-head{height:62px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;padding:8px 12px}
 .chat-head .chat-title{flex:1}
 .chat-body{flex:1;overflow:auto;padding:12px}
-.message-row{display:flex;margin:6px 0}
+.message-row{display:flex;width:100%;margin:6px 0;min-width:0}
+.message-row>div{display:block;width:auto;max-width:82%;min-width:0}
 .message-row.mine{justify-content:flex-start}
 .message-row.theirs{justify-content:flex-end}
-.message{max-width:78%;padding:9px 11px;border-radius:16px;line-height:1.45;overflow-wrap:anywhere}
+.message{display:block;width:max-content;max-width:100%;padding:9px 11px;border-radius:16px;line-height:1.55;white-space:pre-wrap;word-break:normal;overflow-wrap:break-word;direction:rtl;text-align:right}
 .mine .message{background:var(--primary);color:#fff;border-bottom-left-radius:5px}
 .theirs .message{background:var(--card);color:var(--text);border:1px solid var(--border);border-bottom-right-radius:5px}
 .message-time{display:block;font-size:9px;opacity:.7;margin-top:3px}
@@ -100,6 +101,7 @@ input,textarea,.select{width:100%;border:1px solid var(--border);background:var(
 .chat-send{width:44px;height:44px;border:0;border-radius:50%;background:var(--primary);color:#fff;font-size:18px}
 .chat-empty{text-align:center;color:var(--sub);padding:45px 15px}
 
+.profile-stats{display:flex;justify-content:center;gap:8px;margin:12px 0;flex-wrap:wrap}.profile-stat{min-width:82px;padding:8px 10px;border-radius:10px;background:var(--input);text-align:center}.profile-stat b{display:block;font-size:18px}.profile-stat span{font-size:11px;color:var(--sub)}
 </style>
 
 <style id="modern-flat-theme">
@@ -173,7 +175,105 @@ body.dark .nav{background:rgba(31,41,55,.95)}
 body.dark .smallbtn,body.dark .action,body.dark .icon,body.dark .pill{box-shadow:0 3px 0 #15121a,0 5px 10px rgba(0,0,0,.24)}
 body.dark .btn,body.dark .chat-send{box-shadow:0 5px 0 #172554,0 8px 14px rgba(0,0,0,.24)}
 body.dark .btn:active,body.dark .chat-send:active{box-shadow:0 1px 0 #172554,0 3px 7px rgba(0,0,0,.2)}
+/* ===== Chat Arabic text final fix ===== */
+.message-row>div{flex:0 1 auto;width:auto;max-width:82%}
+.message{box-sizing:border-box;width:max-content;max-width:100%;min-width:42px;display:block;direction:rtl;text-align:right;white-space:pre-wrap;word-break:normal;overflow-wrap:break-word;line-break:auto}
+@media(max-width:380px){.message-row>div{max-width:86%}}
+/* ===== Stable private-chat scrolling ===== */
+.chat-body{
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  scroll-behavior:auto !important;
+  scrollbar-gutter:stable;
+  contain:none;
+  touch-action:pan-y;
+}
 </style>
+<style id="socialx-v37-video">
+/* ===== SocialX V3.7 Modern Video Player ===== */
+.post-media-wrap{
+  position:relative;
+  width:100%;
+  margin:10px 0;
+  border-radius:16px;
+  overflow:hidden;
+  background:#0b0f17;
+  border:1px solid rgba(37,99,235,.16);
+  box-shadow:0 8px 22px rgba(15,23,42,.12);
+}
+.post-media-wrap .media{
+  width:100%;
+  max-height:none;
+  height:auto;
+  aspect-ratio:16/9;
+  object-fit:cover;
+  display:block;
+  background:#0b0f17;
+  border:0;
+  border-radius:0;
+}
+.post-media-wrap video{
+  outline:none;
+}
+.post-media-wrap video::-webkit-media-controls-panel{
+  background:linear-gradient(transparent,rgba(0,0,0,.78));
+}
+.post-media-wrap video::-webkit-media-controls-timeline{
+  accent-color:#3b82f6;
+}
+@media(max-width:520px){
+  .post-media-wrap{border-radius:13px;margin:9px 0;box-shadow:0 5px 16px rgba(15,23,42,.10)}
+  .post-media-wrap .media{aspect-ratio:16/10}
+}
+</style>
+
+<style id="notifications-v39">
+.sx-notif-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:18px;
+  height:18px;
+  padding:0 5px;
+  margin-inline-start:4px;
+  border-radius:999px;
+  background:#ef4444;
+  color:#fff;
+  font-size:11px;
+  font-weight:800;
+  line-height:1;
+}
+.sx-notif-badge[hidden]{display:none}
+.notification-item{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  padding:12px;
+  margin:8px 0;
+  border-radius:14px;
+  background:var(--card,#fff);
+  border:1px solid rgba(100,116,139,.14);
+  cursor:pointer;
+}
+.notification-item.unread{
+  border-inline-start:4px solid #3b82f6;
+  background:rgba(59,130,246,.06);
+}
+.notification-item .notif-icon{
+  width:38px;height:38px;min-width:38px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(59,130,246,.12);
+  font-size:18px;
+}
+.notification-item .notif-body{flex:1;min-width:0}
+.notification-item .notif-time{font-size:11px;opacity:.6;margin-top:3px}
+.notification-empty{text-align:center;opacity:.65;padding:28px 10px}
+.notification-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+</style>
+
 </head>
 <body>
 <div id="authScreen" class="auth">
@@ -228,7 +328,9 @@ body.dark .btn:active,body.dark .chat-send:active{box-shadow:0 1px 0 #172554,0 3
   </section>
 
   <section id="notificationsPage" class="page">
-    <div class="card"><h3>🔔 الإشعارات</h3><div id="notifications"></div></div>
+    <div class="card"><h3>🔔 الإشعارات</h3>
+<div class="notification-actions"><button class="smallbtn" onclick="SXMarkAllNotificationsRead()">تحديد الكل كمقروء</button></div><div id="notificationsList"></div>
+<div id="notifications"></div></div>
   </section>
 
   <section id="friendsPage" class="page">
@@ -237,7 +339,8 @@ body.dark .btn:active,body.dark .chat-send:active{box-shadow:0 1px 0 #172554,0 3
         <h3>👥 الأصدقاء</h3>
         <button class="icon" onclick="renderFriends()">↻</button>
       </div>
-      <div class="search"><input id="friendsSearch" placeholder="ابحث في أصدقائك..." oninput="renderFriends()"></div>
+      <div class="search"><input id="friendsSearch" placeholder="ابحث في الأصدقاء والطلبات..." oninput="renderFriends()"></div>
+      <div id="friendRequestsList"></div>
       <div id="friendsList"></div>
     </div>
   </section>
@@ -245,7 +348,7 @@ body.dark .btn:active,body.dark .chat-send:active{box-shadow:0 1px 0 #172554,0 3
   <section id="profilePage" class="page">
     <div class="card profile">
       <img id="profileAvatar" class="bigavatar">
-      <h2 id="profileName"></h2><span class="badge">عضو SocialX</span>
+      <h2 id="profileName"></h2><span class="badge">عضو SocialX</span><div id="profileStats" class="profile-stats"></div>
       <input id="newName" maxlength="40" placeholder="تغيير الاسم">
       <button class="btn" onclick="saveName()">حفظ الاسم</button>
       <input id="avatarInput" type="file" accept="image/*">
@@ -257,7 +360,7 @@ body.dark .btn:active,body.dark .chat-send:active{box-shadow:0 1px 0 #172554,0 3
 
   <section id="userPage" class="page">
     <button class="btn secondary" onclick="go('homePage')" style="margin-bottom:10px">← رجوع</button>
-    <div class="card profile"><img id="otherAvatar" class="bigavatar"><h2 id="otherName"></h2><div id="friendAction"></div></div>
+    <div class="card profile"><img id="otherAvatar" class="bigavatar"><h2 id="otherName"></h2><div id="otherStats" class="profile-stats"></div><div id="friendAction"></div></div>
     <div id="otherPosts"></div>
   </section>
 </div>
@@ -288,7 +391,7 @@ body.dark .btn:active,body.dark .chat-send:active{box-shadow:0 1px 0 #172554,0 3
 </div>
 
 <div id="postModal" class="modal"><div class="modalbox">
-<div class="modalhead"><h3>منشور جديد</h3><button class="close" onclick="closeModal('postModal')">✕</button></div>
+<div class="modalhead"><h3 id="postModalTitle">منشور جديد</h3><button class="close" onclick="closePostModal()">✕</button></div>
 <textarea id="postText" rows="4" maxlength="5000" placeholder="اكتب شيئاً..."></textarea>
 <input id="postFile" type="file" accept="image/*,video/*">
 <button id="publishBtn" class="btn" onclick="createPost()">نشر الآن</button>
@@ -318,8 +421,9 @@ const firebaseConfig={
 };
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app);
 const CLOUD_NAME="dgzcvymc",UPLOAD_PRESET="ml_default";
-let me=null,posts={},users={},friends={},stories={},notes={},messages={};
-let activeChatId='', chatUnsub=null, messageUnsubs={};
+let me=null,posts={},users={},friends={},stories={},notes={},messages={},follows={};
+let activeChatId='', chatUnsub=null, messageUnsubs={}, lastPostsSnapshot={};
+let chatScrolling=false, chatScrollTimer=null, chatPendingRender=false, chatRenderSignature='';
 
 const $=id=>document.getElementById(id);
 window.showRegister=()=>{$('loginForm').classList.add('hidden');$('registerForm').classList.remove('hidden');$('authSubtitle').textContent='أنشئ حسابك في SocialX';$('authError').textContent=''};
@@ -333,8 +437,17 @@ onAuthStateChanged(auth,u=>{me=u;if(u){$('authScreen').classList.add('hidden');$
 
 function startData(){
  onValue(ref(db,'users'),s=>{users=s.val()||{};renderUsers();renderProfile();renderFriends();setupMessageListeners();});
- onValue(ref(db,'posts'),s=>{posts=s.val()||{};renderFeed();renderMyPosts();});
+ onValue(ref(db,'posts'),s=>{
+  const next=s.val()||{};
+  const firstLoad=Object.keys(lastPostsSnapshot).length===0 && Object.keys(posts||{}).length===0;
+  const prev=posts||{};
+  posts=next;
+  if(firstLoad){ renderFeed(); renderMyPosts(); }
+  else { updatePostUIs(prev,next); }
+  lastPostsSnapshot=JSON.parse(JSON.stringify(next));
+});
  onValue(ref(db,'friendships'),s=>{friends=s.val()||{};renderUsers();renderFriends();renderChats();setupMessageListeners();});
+ onValue(ref(db,'follows'),s=>{follows=s.val()||{};renderProfile();if(currentOther)renderUserProfile(currentOther);});
  onValue(ref(db,'stories'),s=>{stories=s.val()||{};renderStories();});
  onValue(ref(db,'notifications/'+me.uid),s=>{notes=s.val()||{};renderNotifications();});
 }
@@ -350,7 +463,10 @@ function setupMessageListeners(){
      const data=s.val()||{};
      Object.entries(data).forEach(([mid,m])=>{messages[ck+'/'+mid]={...m,_chatOwner:me.uid,_chatOther:id}});
      renderChats();
-     if(activeChatId)renderChatMessages(activeChatId);
+     if(activeChatId){
+       if(chatScrolling){ chatPendingRender=true; }
+       else renderChatMessages(activeChatId);
+     }
    });
  });
 }
@@ -403,12 +519,17 @@ window.openChat=id=>{
   $('chatAvatar').src=avatar(id);
   $('chatName').textContent=users[id].name||'مستخدم';
   $('chatStatus').textContent='محادثة خاصة';
+  $('chatBody').dataset.chatRendered='';
+  chatRenderSignature='';
+  chatPendingRender=false;
   $('chatScreen').classList.add('show');
   renderChatMessages(id);
   setTimeout(()=>{$('chatInput')?.focus()},120);
 };
 window.closeChat=()=>{
   activeChatId='';
+  chatScrolling=false;
+  chatPendingRender=false;
   $('chatScreen').classList.remove('show');
 };
 function renderChatMessages(other){
@@ -416,6 +537,15 @@ function renderChatMessages(other){
   const list=Object.entries(messages||{})
     .filter(([k,m])=>m&&(m.from===me.uid&&m.to===other||m.from===other&&m.to===me.uid))
     .sort((a,b)=>(a[1].timestamp||0)-(b[1].timestamp||0));
+  const signature=list.map(([k,m])=>k+'|'+(m.text||'')+'|'+(m.timestamp||0)+'|'+(m.read?'1':'0')).join('||');
+  if(el.dataset.chatRendered && signature===chatRenderSignature){
+    chatPendingRender=false;
+    return;
+  }
+  const wasEmpty=!el.dataset.chatRendered;
+  const distanceFromBottom=el.scrollHeight-el.scrollTop-el.clientHeight;
+  const wasAtBottom=wasEmpty || distanceFromBottom<48;
+  const previousScrollTop=el.scrollTop;
   el.innerHTML=list.map(([k,m])=>{
     const mine=m.from===me.uid;
     return `<div class="message-row ${mine?'mine':'theirs'}">
@@ -425,11 +555,33 @@ function renderChatMessages(other){
       </div>
     </div>`;
   }).join('')||'<div class="chat-empty">ابدأ المحادثة 👋</div>';
-  el.scrollTop=el.scrollHeight;
+  el.dataset.chatRendered='1';
+  chatRenderSignature=signature;
+  chatPendingRender=false;
+  if(wasAtBottom){
+    el.scrollTop=el.scrollHeight;
+  }else{
+    el.scrollTop=previousScrollTop;
+  }
   list.filter(([k,m])=>m.from===other&&m.to===me.uid&&!m.read).forEach(([k])=>{
     Promise.all(messageRefsFromKey(k).map(r=>update(r,{read:true}).catch(()=>{})));
   });
 }
+
+function setupChatScrollGuard(){
+  const el=$('chatBody'); if(!el || el.dataset.scrollGuard==='1')return;
+  el.dataset.scrollGuard='1';
+  el.addEventListener('scroll',()=>{
+    chatScrolling=true;
+    clearTimeout(chatScrollTimer);
+    chatScrollTimer=setTimeout(()=>{
+      chatScrolling=false;
+      if(chatPendingRender && activeChatId) renderChatMessages(activeChatId);
+    },180);
+  },{passive:true});
+}
+setupChatScrollGuard();
+
 window.sendMessage=async()=>{
   if(!activeChatId||!me)return;
   const i=$('chatInput'),text=i.value.trim();
@@ -471,8 +623,8 @@ window.viewStory=s=>{const w=window.open('','_blank','width=400,height=700');if(
 
 function postHTML(k,p){
  const likes=Object.keys(p.likes||{}), comments=Object.values(p.comments||{}), liked=!!p.likes?.[me.uid], owner=p.userId===me.uid;
- return `<div class="card" id="p_${k}"><div class="post-head"><div class="user" onclick="viewUser('${p.userId}')"><img class="avatar" src="${esc(p.userAvatar)}"><div><div class="name">${esc(p.userName)}</div><div class="time">${ago(p.timestamp)}</div></div></div>${owner?`<button class="icon" onclick="deletePost('${k}')">🗑️</button>`:''}</div>
- <div class="post-text">${esc(p.text)}</div>${p.mediaUrl?(p.mediaType==='video'?`<video class="media" data-post-key="${esc(k)}" controls playsinline src="${esc(p.mediaUrl)}"></video>`:`<img class="media" src="${esc(p.mediaUrl)}">`):''}
+ return `<div class="card" id="p_${k}"><div class="post-head"><div class="user" onclick="viewUser('${p.userId}')"><img class="avatar" src="${esc(p.userAvatar)}"><div><div class="name">${esc(p.userName)}</div><div class="time">${ago(p.timestamp)}</div></div></div>${owner?`<div style="display:flex;gap:5px"><button class="icon" onclick="editPost('${k}')">✏️</button><button class="icon" onclick="deletePost('${k}')">🗑️</button></div>`:''}</div>
+ <div class="post-text">${esc(p.text)}</div>${p.mediaUrl?(p.mediaType==='video'?`<div class="post-media-wrap"><video class="media" data-post-key="${esc(k)}" controls playsinline preload="metadata" src="${esc(p.mediaUrl)}"></video></div>`:`<img class="media" src="${esc(p.mediaUrl)}">`):''}
  <div class="stats"><span>❤️ ${likes.length} إعجاب</span><span>💬 ${comments.length} تعليق</span></div><div class="actions"><button class="action ${liked?'liked':''}" onclick="likePost('${k}')">❤️ ${liked?'أعجبني':'إعجاب'}</button><button class="action" onclick="toggleComments('${k}')">💬 تعليق</button><button class="action" onclick="sharePost('${k}')">↗️ مشاركة</button></div>
  <div class="comments hidden" id="c_${k}">${comments.map(c=>`<div class="comment"><b>${esc(c.userName)}</b><br>${esc(c.text)}<br><small>${ago(c.timestamp)}</small></div>`).join('')}<div class="search"><input id="ci_${k}" placeholder="اكتب تعليقاً..."><button class="btn smallbtn" onclick="comment('${k}')">إرسال</button></div></div></div>`
 }
@@ -510,27 +662,102 @@ function restoreVideoStates(container,states){
 
 function renderFeed(){
   const el=$('feed');
-  const states=saveVideoStates(el);
-  // لا نعرض منشورات الحسابات التي لم تعد موجودة في users،
-  // ونرتب المنشورات الجديدة في الأعلى حسب timestamp.
+  if(!el)return;
   const arr=Object.entries(posts)
     .filter(([k,p])=>p && p.userId && users[p.userId])
     .sort((a,b)=>(b[1].timestamp||0)-(a[1].timestamp||0));
   el.innerHTML=arr.length?arr.map(([k,p])=>postHTML(k,p)).join(''):'<div class="card" style="text-align:center;color:var(--sub)">لا توجد منشورات بعد.</div>';
-  restoreVideoStates(el,states);
 }
 
 function renderMyPosts(){
   const el=$('myPosts');
-  const states=saveVideoStates(el);
+  if(!el)return;
   el.innerHTML=Object.entries(posts)
     .filter(([k,p])=>p.userId===me?.uid && users[p.userId])
     .sort((a,b)=>(b[1].timestamp||0)-(a[1].timestamp||0))
     .map(([k,p])=>postHTML(k,p)).join('')||'<div class="card">لا توجد منشورات.</div>';
-  restoreVideoStates(el,states);
 }
 
-window.createPost=async()=>{const text=$('postText').value.trim(),file=$('postFile').files[0],b=$('publishBtn');if(!text&&!file)return toast('اكتب شيئاً أو اختر ملفاً');b.disabled=true;b.textContent='جاري النشر...';try{let url='',type='';if(file){if(file.size>50*1024*1024)throw Error('حجم الملف أكبر من 50MB');type=file.type.startsWith('video/')?'video':'image';url=await upload(file)}await push(ref(db,'posts'),{userId:me.uid,userName:me.displayName||users[me.uid]?.name||'مستخدم',userAvatar:avatar(me.uid),text,mediaUrl:url,mediaType:type,timestamp:Date.now()});$('postText').value='';$('postFile').value='';closeModal('postModal');toast('تم نشر المنشور ❤️')}catch(e){toast(e.message||'فشل النشر')}finally{b.disabled=false;b.textContent='نشر الآن'}};
+// تحديث أجزاء المنشور فقط عند اللايك/التعليق، بدون إعادة إنشاء عنصر الفيديو.
+// بذلك يستمر الفيديو من نفس موضع التشغيل ولا يحصل Refresh أو توقف مزعج.
+function updatePostUIs(prev,next){
+  const prevKeys=Object.keys(prev||{}).filter(k=>prev[k]);
+  const nextKeys=Object.keys(next||{}).filter(k=>next[k]);
+  const structuralChange=prevKeys.length!==nextKeys.length || prevKeys.some(k=>!next[k]) || nextKeys.some(k=>!prev[k]);
+  if(structuralChange){
+    renderFeed();
+    renderMyPosts();
+    return;
+  }
+  nextKeys.forEach(k=>{
+    const a=prev[k],b=next[k],card=document.getElementById('p_'+k);
+    if(!card || !a || !b)return;
+    const mediaChanged=(a.mediaUrl||'')!==(b.mediaUrl||'') || (a.mediaType||'')!==(b.mediaType||'') || (a.text||'')!==(b.text||'') || (a.userName||'')!==(b.userName||'') || (a.userAvatar||'')!==(b.userAvatar||'');
+    if(mediaChanged){
+      const states=saveVideoStates(card.parentElement);
+      card.outerHTML=postHTML(k,b);
+      restoreVideoStates(card.parentElement,states);
+      return;
+    }
+    const likes=Object.keys(b.likes||{}).length;
+    const comments=Object.values(b.comments||{});
+    const liked=!!b.likes?.[me.uid];
+    const stats=card.querySelector('.stats');
+    if(stats)stats.innerHTML=`<span>❤️ ${likes} إعجاب</span><span>💬 ${comments.length} تعليق</span>`;
+    const likeBtn=card.querySelector('.actions .action');
+    if(likeBtn){likeBtn.className='action '+(liked?'liked':'');likeBtn.textContent='❤️ '+(liked?'أعجبني':'إعجاب');}
+    const commentsBox=card.querySelector('.comments');
+    if(commentsBox){
+      const wasHidden=commentsBox.classList.contains('hidden');
+      commentsBox.innerHTML=comments.map(c=>`<div class="comment"><b>${esc(c.userName)}</b><br>${esc(c.text)}<br><small>${ago(c.timestamp)}</small></div>`).join('')+`<div class="search"><input id="ci_${k}" placeholder="اكتب تعليقاً..."><button class="btn smallbtn" onclick="comment('${k}')">إرسال</button></div>`;
+      if(wasHidden)commentsBox.classList.add('hidden');
+    }
+  });
+}
+
+let editingPostKey='';
+window.createPost=async()=>{
+ const text=$('postText').value.trim(),file=$('postFile').files[0],b=$('publishBtn');
+ if(editingPostKey){
+   if(!text)return toast('اكتب نص المنشور');
+   const p=posts[editingPostKey];
+   if(!p||p.userId!==me.uid)return toast('لا يمكنك تعديل هذا المنشور');
+   b.disabled=true;b.textContent='جاري حفظ التعديل...';
+   try{
+     // نحدّث النص فقط حتى تتوافق العملية مع Firebase Rules الحالية.
+     await update(ref(db,'posts/'+editingPostKey),{text:text});
+     toast('تم تعديل المنشور ✓');
+     closePostModal();
+   }catch(e){
+     console.error('editPost Firebase error:',e);
+     toast((e?.code==='PERMISSION_DENIED'||e?.code==='permission-denied')?'Firebase رفض تعديل المنشور. راجع Rule الخاصة بـ posts.':'تعذر تعديل المنشور: '+(e?.message||'خطأ غير معروف'));
+   }finally{b.disabled=false;b.textContent='نشر الآن';}
+   return;
+ }
+ if(!text&&!file)return toast('اكتب شيئاً أو اختر ملفاً');
+ b.disabled=true;b.textContent='جاري النشر...';
+ try{let url='',type='';if(file){if(file.size>50*1024*1024)throw Error('حجم الملف أكبر من 50MB');type=file.type.startsWith('video/')?'video':'image';url=await upload(file)}await push(ref(db,'posts'),{userId:me.uid,userName:me.displayName||users[me.uid]?.name||'مستخدم',userAvatar:avatar(me.uid),text,mediaUrl:url,mediaType:type,timestamp:Date.now()});$('postText').value='';$('postFile').value='';closePostModal();toast('تم نشر المنشور ❤️')}catch(e){toast(e.message||'فشل النشر')}finally{b.disabled=false;b.textContent='نشر الآن'}
+};
+window.editPost=k=>{
+ const p=posts[k];
+ if(!p||p.userId!==me.uid)return toast('لا يمكنك تعديل هذا المنشور');
+ editingPostKey=k;
+ $('postModalTitle').textContent='تعديل المنشور';
+ $('postText').value=p.text||'';
+ $('postFile').value='';
+ $('postFile').disabled=true;
+ $('publishBtn').textContent='حفظ التعديل';
+ openModal('postModal');
+};
+window.closePostModal=()=>{
+ editingPostKey='';
+ $('postModalTitle').textContent='منشور جديد';
+ $('postText').value='';
+ $('postFile').value='';
+ $('postFile').disabled=false;
+ $('publishBtn').textContent='نشر الآن';
+ closeModal('postModal');
+};
 window.deletePost=k=>{if(confirm('حذف المنشور؟'))remove(ref(db,'posts/'+k))};
 window.likePost=k=>{const r=ref(db,`posts/${k}/likes/${me.uid}`);posts[k]?.likes?.[me.uid]?remove(r):set(r,true)};
 window.toggleComments=k=>$('c_'+k).classList.toggle('hidden');
@@ -541,32 +768,42 @@ window.createStory=async()=>{const file=$('storyFile').files[0];if(!file)return 
 
 function renderUsers(){if(!$('usersList'))return;const q=($('searchInput')?.value||'').trim().toLowerCase();$('usersList').innerHTML=Object.entries(users).filter(([id,u])=>id!==me?.uid&&(u.name||'').toLowerCase().includes(q)).map(([id,u])=>{const s=status(id);let b=s==='none'?`<button class="btn smallbtn" onclick="sendFriend('${id}')">إضافة</button>`:s==='sent'?`<button class="btn secondary smallbtn" onclick="removeFriend('${id}')">إلغاء</button>`:s==='received'?`<button class="btn smallbtn" onclick="acceptFriend('${id}')">قبول</button>`:`<button class="btn secondary smallbtn" onclick="removeFriend('${id}')">صديق ✓</button>`;return `<div class="list"><div class="left" onclick="viewUser('${id}')"><img class="avatar" src="${esc(u.avatar)}"><b>${esc(u.name)}</b></div>${b}</div>`}).join('')||'<p style="color:var(--sub);padding:10px">لا يوجد مستخدمون.</p>'}
 async function notify(uid,type,text){if(uid===me.uid)return;await push(ref(db,'notifications/'+uid),{type,text,from:me.uid,timestamp:Date.now(),read:false})}
-window.sendFriend=async id=>{await set(ref(db,'friendships/'+friendKey(me.uid,id)),{from:me.uid,to:id,status:'pending',timestamp:Date.now()});await notify(id,'friend',`${me.displayName||'مستخدم'} أرسل لك طلب صداقة 👥`);toast('تم إرسال الطلب')};
-window.acceptFriend=async id=>{await update(ref(db,'friendships/'+friendKey(me.uid,id)),{status:'accepted'});await notify(id,'friend',`${me.displayName||'مستخدم'} قبل طلب صداقتك 🎉`);toast('تم قبول الطلب')};
-window.removeFriend=id=>remove(ref(db,'friendships/'+friendKey(me.uid,id)));
+window.sendFriend=async id=>{if(!me||id===me.uid)return;try{const existing=friends[friendKey(me.uid,id)];if(existing)return toast(existing.status==='accepted'?'أنتما أصدقاء بالفعل':existing.from===me.uid?'تم إرسال الطلب بالفعل':'لديك طلب صداقة وارد');await set(ref(db,'friendships/'+friendKey(me.uid,id)),{from:me.uid,to:id,status:'pending',timestamp:Date.now()});try{await notify(id,'friend',`${me.displayName||'مستخدم'} أرسل لك طلب صداقة 👥`)}catch(e){}renderFriends();renderUsers();toast('تم إرسال طلب الصداقة ✓')}catch(e){toast('تعذر إرسال طلب الصداقة. تحقق من Firebase Rules.')}};
+window.acceptFriend=async id=>{try{const f=friends[friendKey(me.uid,id)];if(!f||f.to!==me.uid||f.status!=='pending')return toast('طلب الصداقة غير متاح');await update(ref(db,'friendships/'+friendKey(me.uid,id)),{status:'accepted'});try{await notify(id,'friend',`${me.displayName||'مستخدم'} قبل طلب صداقتك 🎉`)}catch(e){}renderFriends();renderUsers();renderChats();toast('تم قبول طلب الصداقة 🎉')}catch(e){toast('تعذر قبول الطلب. تحقق من Firebase Rules.')}};
+window.removeFriend=async id=>{try{await remove(ref(db,'friendships/'+friendKey(me.uid,id)));renderFriends();renderUsers();renderChats();toast('تم إزالة الطلب/الصداقة')}catch(e){toast('تعذر تنفيذ العملية. تحقق من Firebase Rules.')}};
 
 
 function renderFriends(){
-  const el=$('friendsList');
-  if(!el||!me)return;
+  const el=$('friendsList'),reqEl=$('friendRequestsList');
+  if(!el||!reqEl||!me)return;
   const q=($('friendsSearch')?.value||'').trim().toLowerCase();
-  const arr=Object.entries(users).filter(([id,u])=>{
-    return id!==me.uid && u && status(id)==='friends' && (u.name||'').toLowerCase().includes(q);
+  const incoming=Object.entries(users).filter(([id,u])=>{
+    const f=friends[friendKey(me.uid,id)];
+    return id!==me.uid&&u&&f&&f.status==='pending'&&f.to===me.uid&&(u.name||'').toLowerCase().includes(q);
   });
-  el.innerHTML=arr.map(([id,u])=>`<div class="list">
-    <div class="left" onclick="viewUser('${id}')">
-      <img class="avatar" src="${esc(avatar(id))}"><div><b>${esc(u.name||'مستخدم')}</b><div class="time">صديق</div></div>
-    </div>
-    <button class="btn smallbtn" onclick="openChat('${id}')">💬</button>
-  </div>`).join('') || '<p style="color:var(--sub);padding:10px;text-align:center">لا يوجد أصدقاء بعد.</p>';
+  reqEl.innerHTML=incoming.length?`<div class="card" style="margin:10px 0;padding:12px;border:1px solid var(--primary)">
+    <h4 style="margin:0 0 8px">👥 طلبات الصداقة (${incoming.length})</h4>
+    ${incoming.map(([id,u])=>`<div class="list">
+      <div class="left" onclick="viewUser('${id}')"><img class="avatar" src="${esc(avatar(id))}"><div><b>${esc(u.name||'مستخدم')}</b><div class="time">أرسل لك طلب صداقة</div></div></div>
+      <div style="display:flex;gap:6px"><button class="btn smallbtn" onclick="acceptFriend('${id}')">قبول</button><button class="btn secondary smallbtn" onclick="removeFriend('${id}')">رفض</button></div>
+    </div>`).join('')}
+  </div>`:'';
+  const arr=Object.entries(users).filter(([id,u])=>id!==me.uid&&u&&status(id)==='friends'&&(u.name||'').toLowerCase().includes(q));
+  el.innerHTML=arr.map(([id,u])=>`<div class="list"><div class="left" onclick="viewUser('${id}')"><img class="avatar" src="${esc(avatar(id))}"><div><b>${esc(u.name||'مستخدم')}</b><div class="time">صديق</div></div></div><button class="btn smallbtn" onclick="openChat('${id}')">💬</button></div>`).join('')||(incoming.length?'':'<p style="color:var(--sub);padding:10px;text-align:center">لا يوجد أصدقاء بعد.</p>');
 }
 
+function followerCount(id){return Object.keys(follows[id]||{}).length}
+function followingCount(id){let n=0;Object.values(follows||{}).forEach(fs=>{if(fs&&fs[id])n++});return n}
+function isFollowing(id){return !!(follows[id]&&follows[id][me?.uid])}
+function renderProfileStats(id,elId){const el=$(elId);if(!el)return;el.innerHTML=`<div class="profile-stat"><b>${followerCount(id)}</b><span>متابعون</span></div><div class="profile-stat"><b>${followingCount(id)}</b><span>أتابع</span></div><div class="profile-stat"><b>${Object.values(posts||{}).filter(p=>p&&p.userId===id).length}</b><span>منشورات</span></div>`}
+window.followUser=async id=>{if(!me||!id||id===me.uid)return;const r=ref(db,`follows/${id}/${me.uid}`);try{if(isFollowing(id)){await remove(r);toast('تم إلغاء المتابعة')}else{await set(r,true);try{await notify(id,'follow',`${me.displayName||users[me.uid]?.name||'مستخدم'} بدأ يتابعك 👤`)}catch(e){}toast('تمت المتابعة ✓')}renderProfile();renderUserProfile(id)}catch(e){toast('تعذر تنفيذ المتابعة. تحقق من Firebase Rules.')}};
+function renderUserProfile(id){const u=users[id];if(!u)return;currentOther=id;$('otherAvatar').src=avatar(id);$('otherName').textContent=u.name||'مستخدم';renderProfileStats(id,'otherStats');const s=status(id),f=isFollowing(id);let follow=`<button class="btn ${f?'secondary':''}" onclick="followUser('${id}')">${f?'✓ متابَع':'➕ متابعة'}</button>`;let friend=s==='none'?`<button class="btn" onclick="sendFriend('${id}')">إضافة صديق ➕</button>`:s==='sent'?`<button class="btn secondary" onclick="removeFriend('${id}')">إلغاء الطلب</button>`:s==='received'?`<button class="btn" onclick="acceptFriend('${id}')">قبول الطلب ✔️</button>`:`<><button class="btn" onclick="openChat('${id}')">💬 مراسلة</button><button class="btn secondary" style="margin-top:8px" onclick="removeFriend('${id}')">إزالة الصداقة</button></>`;$('friendAction').innerHTML=follow+friend;$('otherPosts').innerHTML=Object.entries(posts).filter(([k,p])=>p.userId===id&&users[id]).sort((a,b)=>(b[1].timestamp||0)-(a[1].timestamp||0)).map(([k,p])=>postHTML(k,p)).join('')||'<div class="card">لا توجد منشورات.</div>'}
 function renderNotifications(){const a=Object.values(notes).sort((x,y)=>y.timestamp-x.timestamp);$('notifications').innerHTML=a.map(n=>`<div class="list"><div><b>${esc(n.text)}</b><br><small style="color:var(--sub)">${ago(n.timestamp)}</small></div></div>`).join('')||'<p style="color:var(--sub);padding:10px">لا توجد إشعارات.</p>'}
-window.viewUser=id=>{const u=users[id];if(!u)return;currentOther=id;$('otherAvatar').src=avatar(id);$('otherName').textContent=u.name;const s=status(id);$('friendAction').innerHTML=s==='none'?`<button class="btn" onclick="sendFriend('${id}')">إضافة صديق ➕</button>`:s==='sent'?`<button class="btn secondary" onclick="removeFriend('${id}')">إلغاء الطلب</button>`:s==='received'?`<button class="btn" onclick="acceptFriend('${id}')">قبول الطلب ✔️</button>`:`<><button class="btn" onclick="openChat('${id}')">💬 مراسلة</button><button class="btn secondary" style="margin-top:8px" onclick="removeFriend('${id}')">إزالة الصداقة</button></>`;$('otherPosts').innerHTML=Object.entries(posts).filter(([k,p])=>p.userId===id && users[id]).sort((a,b)=>(b[1].timestamp||0)-(a[1].timestamp||0)).map(([k,p])=>postHTML(k,p)).join('')||'<div class="card">لا توجد منشورات.</div>';go('userPage')};
+window.viewUser=id=>{if(!users[id])return;renderUserProfile(id);go('userPage')};
 let currentOther='';
 window.saveName=async()=>{const n=$('newName').value.trim();if(!n)return toast('اكتب الاسم');await updateProfile(me,{displayName:n});await update(ref(db,'users/'+me.uid),{name:n});toast('تم تحديث الاسم')};
 window.uploadAvatar=async()=>{const f=$('avatarInput').files[0];if(!f)return toast('اختر صورة');try{const u=await upload(f);await updateProfile(me,{photoURL:u});await update(ref(db,'users/'+me.uid),{avatar:u});toast('تم تغيير الصورة')}catch{toast('فشل رفع الصورة')}};
-function renderProfile(){if(!me)return;const u=users[me.uid];$('profileAvatar').src=u?.avatar||me.photoURL||avatar(me.uid);$('myAvatarTop').src=u?.avatar||me.photoURL||avatar(me.uid);$('profileName').textContent=u?.name||me.displayName||'مستخدم';$('newName').value=u?.name||me.displayName||''}
+function renderProfile(){if(!me)return;const u=users[me.uid];$('profileAvatar').src=u?.avatar||me.photoURL||avatar(me.uid);$('myAvatarTop').src=u?.avatar||me.photoURL||avatar(me.uid);$('profileName').textContent=u?.name||me.displayName||'مستخدم';$('newName').value=u?.name||me.displayName||'';renderProfileStats(me.uid,'profileStats')}
 // Expose functions used by inline HTML onclick handlers.
 Object.assign(window,{renderChats,renderFriends,renderUsers,renderNotifications,renderProfile});
 window.go=id=>{
@@ -590,5 +827,169 @@ window.openModal=id=>$(id).classList.add('show');window.closeModal=id=>$(id).cla
 <style>#bootError{display:none;position:fixed;inset:0;z-index:9999;background:var(--bg);color:var(--text);padding:24px;direction:rtl}#bootError .box{max-width:520px;margin:60px auto;background:var(--card-bg);padding:20px;border-radius:18px;box-shadow:0 5px 25px #0002}#bootError pre{white-space:pre-wrap;word-break:break-word}</style>
 <div id="bootError"><div class="box"><h2>SocialX</h2><p>حدث خطأ في تشغيل التطبيق.</p><pre id="bootErrorText"></pre><button class="btn" onclick="location.reload()">إعادة المحاولة</button></div></div>
 <script>window.addEventListener('error',e=>{let x=document.getElementById('bootError'),t=document.getElementById('bootErrorText');if(x&&t){t.textContent=e.message||'JavaScript error';x.style.display='block'}});window.addEventListener('unhandledrejection',e=>{let x=document.getElementById('bootError'),t=document.getElementById('bootErrorText');if(x&&t){t.textContent=(e.reason&&e.reason.message)||String(e.reason)||'Unexpected error';x.style.display='block'}});</script>
+
+<script>
+(function(){
+  function pauseOtherVideos(current){
+    document.querySelectorAll('video').forEach(function(v){
+      if(v !== current && !v.paused){
+        try{ v.pause(); }catch(e){}
+      }
+    });
+  }
+
+  document.addEventListener('play', function(e){
+    if(e.target && e.target.tagName === 'VIDEO'){
+      pauseOtherVideos(e.target);
+    }
+  }, true);
+
+  // إيقاف الفيديو تلقائيًا عندما يخرج من الشاشة أثناء الـ scroll.
+  if('IntersectionObserver' in window){
+    const observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        const video = entry.target;
+        if(!entry.isIntersecting && !video.paused){
+          try{ video.pause(); }catch(e){}
+        }
+      });
+    }, {
+      threshold: 0.25
+    });
+
+    function observeVideos(){
+      document.querySelectorAll('video').forEach(function(video){
+        if(!video.dataset.autoPauseObserved){
+          video.dataset.autoPauseObserved = '1';
+          observer.observe(video);
+        }
+      });
+    }
+
+    observeVideos();
+
+    const mutationObserver = new MutationObserver(function(){
+      observeVideos();
+    });
+    mutationObserver.observe(document.body, {childList:true, subtree:true});
+  }
+})();
+</script>
+
+
+<script type="module">
+(function(){
+  // These helpers integrate with the existing SocialX Firebase state/functions.
+  function sxTime(ts){
+    if(!ts) return '';
+    const d = new Date(Number(ts));
+    if(Number.isNaN(d.getTime())) return '';
+    return d.toLocaleString('ar-EG',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  }
+
+  function sxNotifIcon(type){
+    return ({
+      like:'❤️', comment:'💬', friend_request:'👥',
+      friend_accept:'🤝', message:'✉️', system:'🔔'
+    })[type] || '🔔';
+  }
+
+  function sxNotifText(n){
+    const name = n.fromName || n.senderName || n.userName || 'مستخدم';
+    return ({
+      like: `${name} أعجب بمنشورك`,
+      comment: `${name} علّق على منشورك`,
+      friend_request: `${name} أرسل لك طلب صداقة`,
+      friend_accept: `${name} قبل طلب الصداقة`,
+      message: `لديك رسالة جديدة من ${name}`,
+      system: n.text || 'لديك إشعار جديد'
+    })[n.type] || n.text || 'لديك إشعار جديد';
+  }
+
+  window.SXCreateNotification = async function(recipientUid, data){
+    try{
+      if(!recipientUid || !window.db || !window.push || !window.ref || !window.set) return;
+      if(window.me && recipientUid === window.me.uid && data?.type !== 'system') return;
+      const r = window.push(window.ref(window.db, 'notifications/'+recipientUid));
+      await window.set(r, Object.assign({
+        from: window.me?.uid || '',
+        timestamp: Date.now(),
+        read: false
+      }, data || {}));
+    }catch(e){
+      console.warn('Notification create failed', e);
+    }
+  };
+
+  window.SXMarkAllNotificationsRead = async function(){
+    try{
+      if(!window.me || !window.db || !window.get || !window.ref || !window.update) return;
+      const snap = await window.get(window.ref(window.db,'notifications/'+window.me.uid));
+      const data = snap.exists() ? snap.val() : {};
+      const changes = {};
+      Object.keys(data).forEach(function(id){
+        if(data[id] && data[id].read === false){
+          changes['notifications/'+window.me.uid+'/'+id+'/read'] = true;
+        }
+      });
+      if(Object.keys(changes).length) await window.update(window.ref(window.db), changes);
+    }catch(e){ console.warn('Mark notifications failed',e); }
+  };
+
+  window.renderNotificationsV39 = function(data){
+    const box = document.getElementById('notificationsList');
+    if(!box) return;
+    const list = Object.entries(data || {})
+      .map(([id,n])=>Object.assign({_id:id}, n || {}))
+      .filter(n=>n.timestamp || n.text)
+      .sort((a,b)=>(Number(b.timestamp)||0)-(Number(a.timestamp)||0));
+
+    if(!list.length){
+      box.innerHTML = '<div class="notification-empty">لا توجد إشعارات حتى الآن 🔔</div>';
+    }else{
+      box.innerHTML = list.map(function(n){
+        const unread = n.read === false;
+        return `<div class="notification-item ${unread?'unread':''}" data-notif-id="${n._id}">
+          <div class="notif-icon">${sxNotifIcon(n.type)}</div>
+          <div class="notif-body">
+            <div>${sxNotifText(n)}</div>
+            <div class="notif-time">${sxTime(n.timestamp)}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    const unreadCount = list.filter(n=>n.read === false).length;
+    const badge = document.getElementById('notificationBadge');
+    if(badge){
+      badge.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
+      badge.hidden = unreadCount === 0;
+    }
+  };
+
+  window.SXStartNotificationListener = function(){
+    if(!window.me || !window.db || !window.onValue || !window.ref) return;
+    const path = 'notifications/'+window.me.uid;
+    if(window.__sxNotifUnsub) try{ window.__sxNotifUnsub(); }catch(e){}
+    window.__sxNotifUnsub = window.onValue(window.ref(window.db,path), function(snap){
+      const data = snap.exists() ? (snap.val() || {}) : {};
+      window.__sxNotificationsData = data;
+      window.renderNotificationsV39(data);
+    });
+  };
+
+  // Wait until the app exposes Firebase objects and current user.
+  let tries=0;
+  const boot=setInterval(function(){
+    tries++;
+    if(window.me && window.db && window.ref && window.onValue){
+      clearInterval(boot);
+      window.SXStartNotificationListener();
+    }
+    if(tries>80) clearInterval(boot);
+  },250);
+})();
+</script>
+
 </body>
-        </html>
+                                                                       </html>
