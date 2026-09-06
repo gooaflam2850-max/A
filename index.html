@@ -100,6 +100,20 @@ input,textarea,.select{width:100%;border:1px solid var(--border);background:var(
 .chat-send{width:44px;height:44px;border:0;border-radius:50%;background:var(--primary);color:#fff;font-size:18px}
 .chat-empty{text-align:center;color:var(--sub);padding:45px 15px}
 
+
+/* ===== SocialX V3.1 upgrades ===== */
+.online-dot{width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block;border:2px solid var(--card)}
+.typing{font-size:11px;color:var(--primary);min-height:16px}
+.chat-tools{display:flex;gap:6px;align-items:center}
+.chat-attach{width:42px;height:42px;border:0;border-radius:50%;background:var(--card-bg);color:var(--text);font-size:18px}
+.message-media{max-width:220px;max-height:260px;border-radius:12px;display:block;margin-top:3px}
+.reactions{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px}
+.react-btn{border:1px solid var(--border);background:var(--card);border-radius:12px;padding:2px 6px;font-size:12px}
+.chat-search{margin:6px 0}
+.friends-grid{display:flex;flex-direction:column;gap:8px}
+.friend-row{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--border);border-radius:14px;background:var(--card)}
+.friend-row .grow{flex:1}
+
 </style>
 </head>
 <body>
@@ -154,6 +168,14 @@ input,textarea,.select{width:100%;border:1px solid var(--border);background:var(
     </div>
   </section>
 
+  <section id="friendsPage" class="page">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3>👥 أصدقائي</h3><button class="icon" onclick="renderFriends()">↻</button></div>
+      <div class="search"><input id="friendsSearch" placeholder="ابحث في أصدقائك..." oninput="renderFriends()"></div>
+      <div id="friendsList" class="friends-grid"></div>
+    </div>
+  </section>
+
   <section id="notificationsPage" class="page">
     <div class="card"><h3>🔔 الإشعارات</h3><div id="notifications"></div></div>
   </section>
@@ -192,12 +214,15 @@ input,textarea,.select{width:100%;border:1px solid var(--border);background:var(
   <div class="chat-head">
     <button class="icon" onclick="closeChat()">←</button>
     <div class="avatar-wrap"><img id="chatAvatar" class="avatar"></div>
-    <div class="chat-title"><b id="chatName">محادثة</b><div id="chatStatus" class="time"></div></div>
+    <div class="chat-title"><b id="chatName">محادثة</b><div id="chatStatus" class="time"></div><div id="chatTyping" class="typing"></div></div>
     <button class="icon" onclick="clearChat()">🗑️</button>
   </div>
+  <div class="chat-search"><input id="chatMessageSearch" placeholder="🔎 ابحث داخل المحادثة..." oninput="searchChat()"></div>
   <div id="chatBody" class="chat-body"></div>
   <div class="chat-compose">
-    <textarea id="chatInput" rows="1" maxlength="2000" placeholder="اكتب رسالة..." onkeydown="chatKeydown(event)"></textarea>
+    <input id="chatImage" type="file" accept="image/*" hidden onchange="sendChatImage()">
+    <button class="chat-attach" onclick="$('chatImage').click()" title="إرسال صورة">📷</button>
+    <textarea id="chatInput" rows="1" maxlength="2000" placeholder="اكتب رسالة..." oninput="handleTyping()" onkeydown="chatKeydown(event)"></textarea>
     <button class="chat-send" onclick="sendMessage()">➤</button>
   </div>
 </div>
@@ -220,7 +245,7 @@ input,textarea,.select{width:100%;border:1px solid var(--border);background:var(
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updateProfile} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-import {getDatabase,ref,set,push,onValue,update,remove,query,orderByChild} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
+import {getDatabase,ref,set,push,onValue,update,remove,onDisconnect,query,orderByChild} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
 
 const firebaseConfig={
  apiKey:"AIzaSyD3dC6ucOkNeo65pHx4JzPDwQ_jgciBu6Q",
@@ -234,7 +259,8 @@ const firebaseConfig={
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app);
 const CLOUD_NAME="dgzcvymc",UPLOAD_PRESET="ml_default";
 let me=null,posts={},users={},friends={},stories={},notes={},messages={};
-let activeChatId='', chatUnsub=null;
+let activeChatId='', chatUnsub=null, typingTimer=null, presenceStarted=false, messageSearch='';
+let presence={},typing={};
 
 const $=id=>document.getElementById(id);
 window.showRegister=()=>{$('loginForm').classList.add('hidden');$('registerForm').classList.remove('hidden');$('authSubtitle').textContent='أنشئ حسابك في SocialX';$('authError').textContent=''};
@@ -247,12 +273,15 @@ window.logout=()=>signOut(auth);
 onAuthStateChanged(auth,u=>{me=u;if(u){$('authScreen').classList.add('hidden');$('app').classList.remove('hidden');startData();}else{$('app').classList.add('hidden');$('authScreen').classList.remove('hidden');}});
 
 function startData(){
- onValue(ref(db,'users'),s=>{users=s.val()||{};renderUsers();renderProfile();});
+ onValue(ref(db,'users'),s=>{users=s.val()||{};renderUsers();renderProfile();renderFriends();});
  onValue(ref(db,'posts'),s=>{posts=s.val()||{};renderFeed();renderMyPosts();});
- onValue(ref(db,'friendships'),s=>{friends=s.val()||{};renderUsers();});
+ onValue(ref(db,'friendships'),s=>{friends=s.val()||{};renderUsers();renderChats();renderFriends();});
  onValue(ref(db,'stories'),s=>{stories=s.val()||{};renderStories();});
  onValue(ref(db,'notifications/'+me.uid),s=>{notes=s.val()||{};renderNotifications();});
   onValue(ref(db,'messages'),s=>{messages=s.val()||{};renderChats();if(activeChatId)renderChatMessages(activeChatId);});
+  onValue(ref(db,'presence'),s=>{presence=s.val()||{};renderChats();renderFriends();if(activeChatId)updateChatHeader(activeChatId);});
+  onValue(ref(db,'typing'),s=>{typing=s.val()||{};updateTypingIndicator();});
+  startPresence();
 }
 function esc(v=''){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function avatar(id){return users[id]?.avatar||'https://api.dicebear.com/9.x/initials/svg?seed='+encodeURIComponent(users[id]?.name||id)}
@@ -263,6 +292,7 @@ function ago(t){let d=Math.floor((Date.now()-t)/1000);if(d<60)return'الآن';i
 function upload(file){return new Promise((res,rej)=>{const f=new FormData();f.append('file',file);f.append('upload_preset',UPLOAD_PRESET);const x=new XMLHttpRequest();x.open('POST',`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`);x.onload=()=>x.status>=200&&x.status<300?res(JSON.parse(x.responseText).secure_url):rej();x.onerror=rej;x.send(f)})}
 
 
+\nfunction isOnline(id){return !!presence[id]?.online}\nfunction updateChatHeader(id){\n  if(!users[id])return;\n  const p=presence[id];\n  $('chatStatus').textContent=isOnline(id)?'🟢 متصل الآن':(p?.lastSeen?'آخر ظهور '+ago(p.lastSeen):'غير متصل');\n}\nfunction startPresence(){\n  if(!me||presenceStarted)return; presenceStarted=true;\n  const r=ref(db,'presence/'+me.uid);\n  set(r,{online:true,lastSeen:Date.now()});\n  onDisconnect(r).set({online:false,lastSeen:Date.now()});\n  setInterval(()=>{if(me)set(r,{online:true,lastSeen:Date.now()})},30000);\n}\nfunction updateTypingIndicator(){\n  if(!activeChatId)return;\n  const t=typing[chatKey(me.uid,activeChatId)]?.[activeChatId];\n  $('chatTyping').textContent=t?'✍️ يكتب الآن...':'';\n}\nfunction handleTyping(){\n  if(!activeChatId||!me)return;\n  const key=chatKey(me.uid,activeChatId),r=ref(db,'typing/'+key+'/'+me.uid);\n  set(r,{at:Date.now()});\n  clearTimeout(typingTimer);\n  typingTimer=setTimeout(()=>remove(r),1800);\n}\nfunction renderFriends(){\n  const el=$('friendsList'); if(!el||!me)return;\n  const q=($('friendsSearch')?.value||'').trim().toLowerCase();\n  const arr=Object.entries(users).filter(([id,u])=>id!==me.uid&&u&&isFriend(id)&&(u.name||'').toLowerCase().includes(q));\n  el.innerHTML=arr.map(([id,u])=>`<div class="friend-row"><img class="avatar" src="${esc(avatar(id))}"><div class="grow"><b>${esc(u.name)}</b><div class="time">${isOnline(id)?'🟢 متصل الآن':(presence[id]?.lastSeen?'آخر ظهور '+ago(presence[id].lastSeen):'غير متصل')}</div></div><button class="btn smallbtn" onclick="openChat('${id}')">💬</button></div>`).join('')||'<div class="chat-empty">لا يوجد أصدقاء مطابقون.</div>';\n}\n
 function chatKey(a,b){return [a,b].sort().join('_')}
 function isFriend(id){return status(id)==='friends'}
 function chatEntries(){
@@ -301,25 +331,27 @@ window.openChat=id=>{
   activeChatId=id;
   $('chatAvatar').src=avatar(id);
   $('chatName').textContent=users[id].name||'مستخدم';
-  $('chatStatus').textContent='محادثة خاصة';
+  updateChatHeader(id);
   $('chatScreen').classList.add('show');
   renderChatMessages(id);
   setTimeout(()=>{$('chatInput')?.focus()},120);
 };
 window.closeChat=()=>{
-  activeChatId='';
+  activeChatId=''; messageSearch='';
+  if($('chatMessageSearch'))$('chatMessageSearch').value='';
   $('chatScreen').classList.remove('show');
 };
 function renderChatMessages(other){
   const el=$('chatBody'); if(!el)return;
   const list=Object.entries(messages||{})
-    .filter(([k,m])=>m&&(m.from===me.uid&&m.to===other||m.from===other&&m.to===me.uid))
+    .filter(([k,m])=>{const ok=m&&(m.from===me.uid&&m.to===other||m.from===other&&m.to===me.uid); if(!ok)return false; return !messageSearch || String(m.text||'').toLowerCase().includes(messageSearch.toLowerCase());})
     .sort((a,b)=>(a[1].timestamp||0)-(b[1].timestamp||0));
   el.innerHTML=list.map(([k,m])=>{
     const mine=m.from===me.uid;
     return `<div class="message-row ${mine?'mine':'theirs'}">
       <div>
-        <div class="message">${esc(m.text||'')}<span class="message-time">${ago(m.timestamp)}${m.read&&mine?' · تمت القراءة':''}</span></div>
+        <div class="message">${m.mediaUrl?`<img class="message-media" src="${esc(m.mediaUrl)}">`:''}${esc(m.text||'')}<span class="message-time">${ago(m.timestamp)}${m.read&&mine?' · تمت القراءة':''}</span></div>
+        <div class="reactions">${['❤️','😂','👍','😮'].map(e=>`<button class="react-btn" onclick="reactMessage('${k}','${e}')">${e} ${(m.reactions&&m.reactions[e])?Object.keys(m.reactions[e]).length:''}</button>`).join('')}</div>
         ${mine?`<div class="message-actions"><button onclick="deleteMessage('${k}')">حذف</button></div>`:''}
       </div>
     </div>`;
@@ -336,11 +368,13 @@ window.sendMessage=async()=>{
   await push(ref(db,'messages'),{
     from:me.uid,to:activeChatId,text,timestamp:Date.now(),read:false
   });
+  clearTimeout(typingTimer); remove(ref(db,'typing/'+chatKey(me.uid,activeChatId)+'/'+me.uid));
   await notify(activeChatId,'message',`${me.displayName||users[me.uid]?.name||'مستخدم'} أرسل لك رسالة 💬`);
 };
 window.chatKeydown=e=>{
   if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}
 };
+\nwindow.reactMessage=async(k,emoji)=>{\n  if(!me)return;\n  const r=ref(db,`messages/${k}/reactions/${emoji}/${me.uid}`);\n  const m=messages[k];\n  if(m?.reactions?.[emoji]?.[me.uid]) await remove(r); else await set(r,true);\n};\nwindow.sendChatImage=async()=>{\n  const f=$('chatImage').files[0]; if(!f||!activeChatId)return;\n  if(f.size>10*1024*1024)return toast('الصورة أكبر من 10MB');\n  if(!isFriend(activeChatId))return toast('يمكنك مراسلة الأصدقاء فقط');\n  try{toast('جاري رفع الصورة...');const url=await upload(f);await push(ref(db,'messages'),{from:me.uid,to:activeChatId,text:'',mediaUrl:url,mediaType:'image',timestamp:Date.now(),read:false});await notify(activeChatId,'message',`${me.displayName||users[me.uid]?.name||'مستخدم'} أرسل لك صورة 📷`);toast('تم إرسال الصورة');}catch{toast('فشل إرسال الصورة')}finally{$('chatImage').value=''}\n};\nwindow.searchChat=()=>{messageSearch=($('chatMessageSearch')?.value||'').trim();if(activeChatId)renderChatMessages(activeChatId)};\n
 window.deleteMessage=async k=>{
   if(confirm('حذف الرسالة؟'))await remove(ref(db,'messages/'+k));
 };
@@ -437,7 +471,7 @@ let currentOther='';
 window.saveName=async()=>{const n=$('newName').value.trim();if(!n)return toast('اكتب الاسم');await updateProfile(me,{displayName:n});await update(ref(db,'users/'+me.uid),{name:n});toast('تم تحديث الاسم')};
 window.uploadAvatar=async()=>{const f=$('avatarInput').files[0];if(!f)return toast('اختر صورة');try{const u=await upload(f);await updateProfile(me,{photoURL:u});await update(ref(db,'users/'+me.uid),{avatar:u});toast('تم تغيير الصورة')}catch{toast('فشل رفع الصورة')}};
 function renderProfile(){if(!me)return;const u=users[me.uid];$('profileAvatar').src=u?.avatar||me.photoURL||avatar(me.uid);$('myAvatarTop').src=u?.avatar||me.photoURL||avatar(me.uid);$('profileName').textContent=u?.name||me.displayName||'مستخدم';$('newName').value=u?.name||me.displayName||''}
-window.go=id=>{document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));if(id==='homePage')$('navHome').classList.add('active');if(id==='searchPage')$('navSearch').classList.add('active');if(id==='messagesPage')$('navMessages').classList.add('active');if(id==='notificationsPage')$('navNotif').classList.add('active');if(id==='profilePage')$('navProfile').classList.add('active')};
+window.go=id=>{document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));if(id==='homePage')$('navHome').classList.add('active');if(id==='searchPage')$('navSearch').classList.add('active');if(id==='messagesPage')$('navMessages').classList.add('active');if(id==='friendsPage')$('navFriends').classList.add('active');if(id==='notificationsPage')$('navNotif').classList.add('active');if(id==='profilePage')$('navProfile').classList.add('active')};
 window.openModal=id=>$(id).classList.add('show');window.closeModal=id=>$(id).classList.remove('show');
 window.toggleDark=()=>{document.body.classList.toggle('dark');localStorage.setItem('sx_dark',document.body.classList.contains('dark')?'1':'0')};if(localStorage.getItem('sx_dark')==='1')document.body.classList.add('dark');
 </script>
@@ -446,4 +480,4 @@ window.toggleDark=()=>{document.body.classList.toggle('dark');localStorage.setIt
 <div id="bootError"><div class="box"><h2>SocialX</h2><p>حدث خطأ في تشغيل التطبيق.</p><pre id="bootErrorText"></pre><button class="btn" onclick="location.reload()">إعادة المحاولة</button></div></div>
 <script>window.addEventListener('error',e=>{let x=document.getElementById('bootError'),t=document.getElementById('bootErrorText');if(x&&t){t.textContent=e.message||'JavaScript error';x.style.display='block'}});window.addEventListener('unhandledrejection',e=>{let x=document.getElementById('bootError'),t=document.getElementById('bootErrorText');if(x&&t){t.textContent=(e.reason&&e.reason.message)||String(e.reason)||'Unexpected error';x.style.display='block'}});</script>
 </body>
-              </html>
+        </html>
